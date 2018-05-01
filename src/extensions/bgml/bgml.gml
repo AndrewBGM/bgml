@@ -1,0 +1,5604 @@
+#define printf
+/// printf(string, ...args)
+
+
+var _string = argument[0];
+
+
+for(var i = 1;i < argument_count;i ++) {
+    var _token = "{" + string(i - 1) + "}";
+    
+    _string = string_replace_all(_string, _token, string(argument[i]));
+}
+
+show_debug_message(_string);
+
+#define stringf
+/// stringf(string, ...args)
+
+
+var _string = argument[0];
+
+
+for(var i = 1;i < argument_count;i ++) {
+    var _token = "{" + string(i - 1) + "}";
+    
+    _string = string_replace_all(_string, _token, string(argument[i]));
+}
+
+return _string;
+
+#define string_reverse
+/// string_reverse(string)
+
+
+var _string = argument[0];
+
+
+var _result = "";
+
+for(var i = string_length(_string);i > 0;i --) {
+    _result += string_char_at(_string, i);
+}
+
+return _result;
+
+#define array_reverse
+/// array_reverse(array)
+
+
+var _array = argument[0];
+
+
+var _len  = array_length_1d(_array),
+    _copy = array_create(_len, undefined);
+
+array_copy(_copy, 0, _array, 0, _len);
+
+for(var i = 0;i < _len;i ++) {
+    var _index = _len - i - 1;
+    _array[@ _index] = _copy[i];
+}
+
+#define ds_list_reverse
+/// ds_list_reverse(id)
+
+
+var _id = argument[0];
+
+
+var _len = ds_list_size(_id);
+
+for(var i = _len - 1;i >= 0;i --) {
+    ds_list_add(_id, _id[| i]);
+}
+
+repeat(_len) {
+    ds_list_delete(_id, 0);
+}
+
+#define string_split
+/// string_split(string, separator, [limit])
+
+
+var _string    = argument[0],
+    _separator = argument[1],
+    _limit     = (argument_count > 2 ? argument[2] : undefined);
+
+
+_string = _string + _separator;
+
+var _skip   = string_length(_separator),
+    _count  = string_count(_separator, _string),
+    _size   = (_limit == undefined ? _count : min(_count, _limit)),
+    _result = array_create(_size, undefined);
+
+for(var i = 0;i < _size;i ++) {
+    var _pos = string_pos(_separator, _string) - 1;
+
+    _result[i] = string_copy(_string, 1, _pos);
+    _string = string_delete(_string, 1, _pos + _skip);
+}
+
+return _result;
+
+#define string_trim
+/// string_trim(string, [chars=' '])
+
+var _string = argument[0],
+    _chars  = (argument_count > 1) ? argument[1] : " ";
+
+
+var _len   = string_length(_string),
+    _start = 1,
+    _end   = _len;
+
+
+while(_start <= _len && string_pos(string_char_at(_string, _start), _chars)) {
+    _start ++;
+}
+
+while(_end > _start && string_pos(string_char_at(_string, _end), _chars)) {
+    _end --;
+}
+
+return string_copy(_string, _start, _end - _start + 1);
+
+#define string_ltrim
+/// string_ltrim(string, [chars=' '])
+
+var _string = argument[0],
+    _chars  = (argument_count > 1) ? argument[1] : " ";
+
+
+var _len   = string_length(_string),
+    _start = 1,
+    _end   = _len;
+
+
+while(_start <= _len && string_pos(string_char_at(_string, _start), _chars)) {
+    _start ++;
+}
+
+return string_copy(_string, _start, _end - _start + 1);
+
+#define string_rtrim
+/// string_rtrim(string, [chars=' '])
+
+var _string = argument[0],
+    _chars  = (argument_count > 1) ? argument[1] : " ";
+
+
+var _len   = string_length(_string),
+    _start = 1,
+    _end   = _len;
+
+
+while(_end > 0 && string_pos(string_char_at(_string, _end), _chars)) {
+    _end --;
+}
+
+return string_copy(_string, _start, _end - _start + 1);
+
+#define array_join
+/// array_join(array, [separator=','])
+
+
+var _array     = argument[0],
+    _sepatator = (argument_count > 1) ? argument[1] : ",";
+
+
+var _result = "";
+
+for(var i = 0, j = array_length_1d(_array);i < j;i ++) {
+    _result += string(_array[i]);
+    
+    if (i < j - 1) {
+        _result += _sepatator;
+    }
+}
+
+return _result;
+
+#define ds_list_join
+/// ds_list_join(id, [separator=','])
+
+
+var _id        = argument[0],
+    _sepatator = (argument_count > 1) ? argument[1] : ",";
+
+
+var _result = "";
+
+for(var i = 0, j = ds_list_size(_id);i < j;i ++) {
+    _result += string(_id[| i]);
+    
+    if (i < j - 1) {
+        _result += _sepatator;
+    }
+}
+
+return _result;
+
+#define draw_rectangle_fast
+/// draw_rectangle_fast(sprite, x, y, width, height, color, alpha, outline)
+
+var _sprite  = argument[0],
+    _x       = argument[1],
+    _y       = argument[2],
+    _width   = argument[3],
+    _height  = argument[4],
+    _color   = argument[5],
+    _alpha   = argument[6],
+    _outline = argument[7];
+
+
+if (_outline) {
+    draw_sprite_ext(_sprite, 0, _x, _y, _width - 1, 1, 0, _color, _alpha);
+    draw_sprite_ext(_sprite, 0, _x + _width - 1, _y, 1, _height - 1, 0, _color, _alpha);
+    draw_sprite_ext(_sprite, 0, _x + 1, _y + _height - 1, _width - 1, 1, 0, _color, _alpha);
+    draw_sprite_ext(_sprite, 0, _x, _y + 1, 1, _height - 1, 0, _color, _alpha);
+    return;
+}
+
+draw_sprite_ext(_sprite, 0, _x, _y, _width, _height, 0, _color, _alpha);
+
+#define draw_line_fast
+/// draw_line_fast(sprite, x1, y1, x2, y2, color, alpha)
+
+var _sprite = argument[0],
+    _x1     = argument[1],
+    _y1     = argument[2],
+    _x2     = argument[3],
+    _y2     = argument[4],
+    _color  = argument[5],
+    _alpha  = argument[6];
+
+
+var _len = point_distance(_x1, _y1, _x2, _y2),
+    _dir = point_direction(_x1, _y1, _x2, _y2);
+
+draw_sprite_ext(_sprite, 0, _x1, _y1, _len, 1, _dir, _color, _alpha);
+
+
+#define function_execute
+/// function_execute(name, ...args)
+
+
+var _name = argument[0],
+    _args = array_create(argument_count - 1, undefined);
+
+for(var i = 1;i < argument_count;i ++) {
+    _args[i - 1] = argument[i];
+}
+
+return function_execute_spread(_name, _args);
+
+
+#define function_execute_spread
+/// function_execute_spread(name, args)
+
+
+var _name = argument[0],
+    _args = argument[1];
+
+
+var _script = asset_get_index("__bgml_function_execute_" + _name);
+
+return script_execute_spread(_script, _args);
+
+#define script_execute_spread
+/// script_execute_spread(ind, args)
+
+
+var _ind  = argument[0],
+    _args = argument[1];
+
+
+var _len = array_length_1d(_args);
+
+if (_len == 0) {
+    return script_execute(_ind);
+}
+
+switch(_len) {
+    case 1:
+        return script_execute(_ind, _args[0]);
+    case 2:
+        return script_execute(_ind, _args[0], _args[1]);
+    case 3:
+        return script_execute(_ind, _args[0], _args[1], _args[2]);
+    case 4:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3]);
+    case 5:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4]);
+    case 6:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5]);
+    case 7:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6]);
+    case 8:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7]);
+    case 9:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8]);
+    case 10:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9]);
+    case 11:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10]);
+    case 12:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11]);
+    case 13:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12]);
+    case 14:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13]);
+    case 15:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14]);
+    case 16:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15]);
+    case 17:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16]);
+    case 18:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17]);
+    case 19:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18]);
+    case 20:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19]);
+    case 21:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20]);
+    case 22:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21]);
+    case 23:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22]);
+    case 24:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23]);
+    case 25:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24]);
+    case 26:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25]);
+    case 27:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26]);
+    case 28:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26], _args[27]);
+    case 29:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26], _args[27], _args[28]);
+    case 30:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26], _args[27], _args[28], _args[29]);
+    case 31:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26], _args[27], _args[28], _args[29], _args[30]);
+    case 32:
+        return script_execute(_ind, _args[0], _args[1], _args[2], _args[3], _args[4], _args[5], _args[6], _args[7], _args[8], _args[9], _args[10], _args[11], _args[12], _args[13], _args[14], _args[15], _args[16], _args[17], _args[18], _args[19], _args[20], _args[21], _args[22], _args[23], _args[24], _args[25], _args[26], _args[27], _args[28], _args[29], _args[30], _args[31]);
+}
+
+// GML FUNCTION WRAPPERS
+#define __bgml_function_execute_is_real
+return is_real(argument[0]);
+#define __bgml_function_execute_is_string
+return is_string(argument[0]);
+#define __bgml_function_execute_is_array
+return is_array(argument[0]);
+#define __bgml_function_execute_is_undefined
+return is_undefined(argument[0]);
+#define __bgml_function_execute_is_int32
+return is_int32(argument[0]);
+#define __bgml_function_execute_is_int64
+return is_int64(argument[0]);
+#define __bgml_function_execute_is_ptr
+return is_ptr(argument[0]);
+#define __bgml_function_execute_is_vec3
+return is_vec3(argument[0]);
+#define __bgml_function_execute_is_vec4
+return is_vec4(argument[0]);
+#define __bgml_function_execute_is_matrix
+return is_matrix(argument[0]);
+#define __bgml_function_execute_is_bool
+return is_bool(argument[0]);
+#define __bgml_function_execute_typeof
+return typeof(argument[0]);
+#define __bgml_function_execute_variable_global_exists
+return variable_global_exists(argument[0]);
+#define __bgml_function_execute_variable_global_get
+return variable_global_get(argument[0]);
+#define __bgml_function_execute_variable_global_set
+return variable_global_set(argument[0],argument[1]);
+#define __bgml_function_execute_variable_instance_exists
+return variable_instance_exists(argument[0],argument[1]);
+#define __bgml_function_execute_variable_instance_get
+return variable_instance_get(argument[0],argument[1]);
+#define __bgml_function_execute_variable_instance_set
+return variable_instance_set(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_variable_instance_get_names
+return variable_instance_get_names(argument[0]);
+#define __bgml_function_execute_array_length_1d
+return array_length_1d(argument[0]);
+#define __bgml_function_execute_array_length_2d
+return array_length_2d(argument[0],argument[1]);
+#define __bgml_function_execute_array_height_2d
+return array_height_2d(argument[0]);
+#define __bgml_function_execute_array_equals
+return array_equals(argument[0],argument[1]);
+#define __bgml_function_execute_array_create
+return array_create(argument[0],argument[1]);
+#define __bgml_function_execute_array_copy
+return array_copy(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_random
+return random(argument[0]);
+#define __bgml_function_execute_random_range
+return random_range(argument[0],argument[1]);
+#define __bgml_function_execute_irandom
+return irandom(argument[0]);
+#define __bgml_function_execute_irandom_range
+return irandom_range(argument[0],argument[1]);
+#define __bgml_function_execute_random_set_seed
+return random_set_seed(argument[0]);
+#define __bgml_function_execute_random_get_seed
+return random_get_seed();
+#define __bgml_function_execute_randomize
+return randomize();
+#define __bgml_function_execute_randomise
+return randomise();
+switch(argument_count) {
+    case 0:
+        return choose();
+    case 1:
+        return choose(argument[0]);
+    case 2:
+        return choose(argument[0],argument[1]);
+    case 3:
+        return choose(argument[0],argument[1],argument[2]);
+    case 4:
+        return choose(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return choose(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_abs
+return abs(argument[0]);
+#define __bgml_function_execute_round
+return round(argument[0]);
+#define __bgml_function_execute_floor
+return floor(argument[0]);
+#define __bgml_function_execute_ceil
+return ceil(argument[0]);
+#define __bgml_function_execute_sign
+return sign(argument[0]);
+#define __bgml_function_execute_frac
+return frac(argument[0]);
+#define __bgml_function_execute_sqrt
+return sqrt(argument[0]);
+#define __bgml_function_execute_sqr
+return sqr(argument[0]);
+#define __bgml_function_execute_exp
+return exp(argument[0]);
+#define __bgml_function_execute_ln
+return ln(argument[0]);
+#define __bgml_function_execute_log2
+return log2(argument[0]);
+#define __bgml_function_execute_log10
+return log10(argument[0]);
+#define __bgml_function_execute_sin
+return sin(argument[0]);
+#define __bgml_function_execute_cos
+return cos(argument[0]);
+#define __bgml_function_execute_tan
+return tan(argument[0]);
+#define __bgml_function_execute_arcsin
+return arcsin(argument[0]);
+#define __bgml_function_execute_arccos
+return arccos(argument[0]);
+#define __bgml_function_execute_arctan
+return arctan(argument[0]);
+#define __bgml_function_execute_arctan2
+return arctan2(argument[0],argument[1]);
+#define __bgml_function_execute_dsin
+return dsin(argument[0]);
+#define __bgml_function_execute_dcos
+return dcos(argument[0]);
+#define __bgml_function_execute_dtan
+return dtan(argument[0]);
+#define __bgml_function_execute_darcsin
+return darcsin(argument[0]);
+#define __bgml_function_execute_darccos
+return darccos(argument[0]);
+#define __bgml_function_execute_darctan
+return darctan(argument[0]);
+#define __bgml_function_execute_darctan2
+return darctan2(argument[0],argument[1]);
+#define __bgml_function_execute_degtorad
+return degtorad(argument[0]);
+#define __bgml_function_execute_radtodeg
+return radtodeg(argument[0]);
+#define __bgml_function_execute_power
+return power(argument[0],argument[1]);
+#define __bgml_function_execute_logn
+return logn(argument[0],argument[1]);
+switch(argument_count) {
+    case 0:
+        return min();
+    case 1:
+        return min(argument[0]);
+    case 2:
+        return min(argument[0],argument[1]);
+    case 3:
+        return min(argument[0],argument[1],argument[2]);
+    case 4:
+        return min(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+switch(argument_count) {
+    case 0:
+        return max();
+    case 1:
+        return max(argument[0]);
+    case 2:
+        return max(argument[0],argument[1]);
+    case 3:
+        return max(argument[0],argument[1],argument[2]);
+    case 4:
+        return max(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+switch(argument_count) {
+    case 0:
+        return mean();
+    case 1:
+        return mean(argument[0]);
+    case 2:
+        return mean(argument[0],argument[1]);
+    case 3:
+        return mean(argument[0],argument[1],argument[2]);
+    case 4:
+        return mean(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+switch(argument_count) {
+    case 0:
+        return median();
+    case 1:
+        return median(argument[0]);
+    case 2:
+        return median(argument[0],argument[1]);
+    case 3:
+        return median(argument[0],argument[1],argument[2]);
+    case 4:
+        return median(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return median(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_clamp
+return clamp(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_lerp
+return lerp(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_dot_product
+return dot_product(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_dot_product_3d
+return dot_product_3d(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_dot_product_normalised
+return dot_product_normalised(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_dot_product_3d_normalised
+return dot_product_3d_normalised(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_dot_product_normalized
+return dot_product_normalized(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_dot_product_3d_normalized
+return dot_product_3d_normalized(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_math_set_epsilon
+return math_set_epsilon(argument[0]);
+#define __bgml_function_execute_math_get_epsilon
+return math_get_epsilon();
+#define __bgml_function_execute_angle_difference
+return angle_difference(argument[0],argument[1]);
+#define __bgml_function_execute_point_distance_3d
+return point_distance_3d(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_point_distance
+return point_distance(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_point_direction
+return point_direction(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_lengthdir_x
+return lengthdir_x(argument[0],argument[1]);
+#define __bgml_function_execute_lengthdir_y
+return lengthdir_y(argument[0],argument[1]);
+#define __bgml_function_execute_real
+return real(argument[0]);
+#define __bgml_function_execute_bool
+return bool(argument[0]);
+#define __bgml_function_execute_string
+return string(argument[0]);
+#define __bgml_function_execute_int64
+return int64(argument[0]);
+#define __bgml_function_execute_ptr
+return ptr(argument[0]);
+#define __bgml_function_execute_string_format
+return string_format(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_chr
+return chr(argument[0]);
+#define __bgml_function_execute_ansi_char
+return ansi_char(argument[0]);
+#define __bgml_function_execute_ord
+return ord(argument[0]);
+#define __bgml_function_execute_string_length
+return string_length(argument[0]);
+#define __bgml_function_execute_string_byte_length
+return string_byte_length(argument[0]);
+#define __bgml_function_execute_string_pos
+return string_pos(argument[0],argument[1]);
+#define __bgml_function_execute_string_copy
+return string_copy(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_char_at
+return string_char_at(argument[0],argument[1]);
+#define __bgml_function_execute_string_ord_at
+return string_ord_at(argument[0],argument[1]);
+#define __bgml_function_execute_string_byte_at
+return string_byte_at(argument[0],argument[1]);
+#define __bgml_function_execute_string_set_byte_at
+return string_set_byte_at(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_delete
+return string_delete(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_insert
+return string_insert(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_lower
+return string_lower(argument[0]);
+#define __bgml_function_execute_string_upper
+return string_upper(argument[0]);
+#define __bgml_function_execute_string_repeat
+return string_repeat(argument[0],argument[1]);
+#define __bgml_function_execute_string_letters
+return string_letters(argument[0]);
+#define __bgml_function_execute_string_digits
+return string_digits(argument[0]);
+#define __bgml_function_execute_string_lettersdigits
+return string_lettersdigits(argument[0]);
+#define __bgml_function_execute_string_replace
+return string_replace(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_replace_all
+return string_replace_all(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_count
+return string_count(argument[0],argument[1]);
+#define __bgml_function_execute_string_hash_to_newline
+return string_hash_to_newline(argument[0]);
+#define __bgml_function_execute_clipboard_has_text
+return clipboard_has_text();
+#define __bgml_function_execute_clipboard_set_text
+return clipboard_set_text(argument[0]);
+#define __bgml_function_execute_clipboard_get_text
+return clipboard_get_text();
+#define __bgml_function_execute_date_current_datetime
+return date_current_datetime();
+#define __bgml_function_execute_date_create_datetime
+return date_create_datetime(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_date_valid_datetime
+return date_valid_datetime(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_date_inc_year
+return date_inc_year(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_month
+return date_inc_month(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_week
+return date_inc_week(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_day
+return date_inc_day(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_hour
+return date_inc_hour(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_minute
+return date_inc_minute(argument[0],argument[1]);
+#define __bgml_function_execute_date_inc_second
+return date_inc_second(argument[0],argument[1]);
+#define __bgml_function_execute_date_get_year
+return date_get_year(argument[0]);
+#define __bgml_function_execute_date_get_month
+return date_get_month(argument[0]);
+#define __bgml_function_execute_date_get_week
+return date_get_week(argument[0]);
+#define __bgml_function_execute_date_get_day
+return date_get_day(argument[0]);
+#define __bgml_function_execute_date_get_hour
+return date_get_hour(argument[0]);
+#define __bgml_function_execute_date_get_minute
+return date_get_minute(argument[0]);
+#define __bgml_function_execute_date_get_second
+return date_get_second(argument[0]);
+#define __bgml_function_execute_date_get_weekday
+return date_get_weekday(argument[0]);
+#define __bgml_function_execute_date_get_day_of_year
+return date_get_day_of_year(argument[0]);
+#define __bgml_function_execute_date_get_hour_of_year
+return date_get_hour_of_year(argument[0]);
+#define __bgml_function_execute_date_get_minute_of_year
+return date_get_minute_of_year(argument[0]);
+#define __bgml_function_execute_date_get_second_of_year
+return date_get_second_of_year(argument[0]);
+#define __bgml_function_execute_date_year_span
+return date_year_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_month_span
+return date_month_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_week_span
+return date_week_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_day_span
+return date_day_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_hour_span
+return date_hour_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_minute_span
+return date_minute_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_second_span
+return date_second_span(argument[0],argument[1]);
+#define __bgml_function_execute_date_compare_datetime
+return date_compare_datetime(argument[0],argument[1]);
+#define __bgml_function_execute_date_compare_date
+return date_compare_date(argument[0],argument[1]);
+#define __bgml_function_execute_date_compare_time
+return date_compare_time(argument[0],argument[1]);
+#define __bgml_function_execute_date_date_of
+return date_date_of(argument[0]);
+#define __bgml_function_execute_date_time_of
+return date_time_of(argument[0]);
+#define __bgml_function_execute_date_datetime_string
+return date_datetime_string(argument[0]);
+#define __bgml_function_execute_date_date_string
+return date_date_string(argument[0]);
+#define __bgml_function_execute_date_time_string
+return date_time_string(argument[0]);
+#define __bgml_function_execute_date_days_in_month
+return date_days_in_month(argument[0]);
+#define __bgml_function_execute_date_days_in_year
+return date_days_in_year(argument[0]);
+#define __bgml_function_execute_date_leap_year
+return date_leap_year(argument[0]);
+#define __bgml_function_execute_date_is_today
+return date_is_today(argument[0]);
+#define __bgml_function_execute_date_set_timezone
+return date_set_timezone(argument[0]);
+#define __bgml_function_execute_date_get_timezone
+return date_get_timezone();
+#define __bgml_function_execute_game_set_speed
+return game_set_speed(argument[0],argument[1]);
+#define __bgml_function_execute_game_get_speed
+return game_get_speed(argument[0]);
+#define __bgml_function_execute_motion_set
+return motion_set(argument[0],argument[1]);
+#define __bgml_function_execute_motion_add
+return motion_add(argument[0],argument[1]);
+#define __bgml_function_execute_place_free
+return place_free(argument[0],argument[1]);
+#define __bgml_function_execute_place_empty
+return place_empty(argument[0],argument[1]);
+#define __bgml_function_execute_place_meeting
+return place_meeting(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_place_snapped
+return place_snapped(argument[0],argument[1]);
+#define __bgml_function_execute_move_random
+return move_random(argument[0],argument[1]);
+#define __bgml_function_execute_move_snap
+return move_snap(argument[0],argument[1]);
+#define __bgml_function_execute_move_towards_point
+return move_towards_point(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_move_contact_solid
+return move_contact_solid(argument[0],argument[1]);
+#define __bgml_function_execute_move_contact_all
+return move_contact_all(argument[0],argument[1]);
+#define __bgml_function_execute_move_outside_solid
+return move_outside_solid(argument[0],argument[1]);
+#define __bgml_function_execute_move_outside_all
+return move_outside_all(argument[0],argument[1]);
+#define __bgml_function_execute_move_bounce_solid
+return move_bounce_solid(argument[0]);
+#define __bgml_function_execute_move_bounce_all
+return move_bounce_all(argument[0]);
+#define __bgml_function_execute_move_wrap
+return move_wrap(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_distance_to_point
+return distance_to_point(argument[0],argument[1]);
+#define __bgml_function_execute_distance_to_object
+return distance_to_object(argument[0]);
+#define __bgml_function_execute_position_empty
+return position_empty(argument[0],argument[1]);
+#define __bgml_function_execute_position_meeting
+return position_meeting(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_path_start
+return path_start(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_path_end
+return path_end();
+#define __bgml_function_execute_mp_linear_step
+return mp_linear_step(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_mp_potential_step
+return mp_potential_step(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_mp_linear_step_object
+return mp_linear_step_object(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_mp_potential_step_object
+return mp_potential_step_object(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_mp_potential_settings
+return mp_potential_settings(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_mp_linear_path
+return mp_linear_path(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_mp_potential_path
+return mp_potential_path(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_mp_linear_path_object
+return mp_linear_path_object(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_mp_potential_path_object
+return mp_potential_path_object(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_mp_grid_create
+return mp_grid_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_mp_grid_destroy
+return mp_grid_destroy(argument[0]);
+#define __bgml_function_execute_mp_grid_clear_all
+return mp_grid_clear_all(argument[0]);
+#define __bgml_function_execute_mp_grid_clear_cell
+return mp_grid_clear_cell(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_mp_grid_clear_rectangle
+return mp_grid_clear_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_mp_grid_add_cell
+return mp_grid_add_cell(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_mp_grid_get_cell
+return mp_grid_get_cell(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_mp_grid_add_rectangle
+return mp_grid_add_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_mp_grid_add_instances
+return mp_grid_add_instances(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_mp_grid_path
+return mp_grid_path(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_mp_grid_draw
+return mp_grid_draw(argument[0]);
+#define __bgml_function_execute_mp_grid_to_ds_grid
+return mp_grid_to_ds_grid(argument[0],argument[1]);
+#define __bgml_function_execute_collision_point
+return collision_point(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_collision_rectangle
+return collision_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_collision_circle
+return collision_circle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_collision_ellipse
+return collision_ellipse(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_collision_line
+return collision_line(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_point_in_rectangle
+return point_in_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_point_in_triangle
+return point_in_triangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_point_in_circle
+return point_in_circle(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_rectangle_in_rectangle
+return rectangle_in_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_rectangle_in_triangle
+return rectangle_in_triangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_rectangle_in_circle
+return rectangle_in_circle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_instance_find
+return instance_find(argument[0],argument[1]);
+#define __bgml_function_execute_instance_exists
+return instance_exists(argument[0]);
+#define __bgml_function_execute_instance_number
+return instance_number(argument[0]);
+#define __bgml_function_execute_instance_position
+return instance_position(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_instance_nearest
+return instance_nearest(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_instance_furthest
+return instance_furthest(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_instance_place
+return instance_place(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_instance_create_depth
+return instance_create_depth(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_instance_create_layer
+return instance_create_layer(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_instance_copy
+return instance_copy(argument[0]);
+#define __bgml_function_execute_instance_change
+return instance_change(argument[0],argument[1]);
+switch(argument_count) {
+    case 0:
+        return instance_destroy();
+    case 1:
+        return instance_destroy(argument[0]);
+    case 2:
+        return instance_destroy(argument[0],argument[1]);
+    case 3:
+        return instance_destroy(argument[0],argument[1],argument[2]);
+    case 4:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return instance_destroy(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_position_destroy
+return position_destroy(argument[0],argument[1]);
+#define __bgml_function_execute_position_change
+return position_change(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_instance_id_get
+return instance_id_get(argument[0]);
+#define __bgml_function_execute_instance_deactivate_all
+return instance_deactivate_all(argument[0]);
+#define __bgml_function_execute_instance_deactivate_object
+return instance_deactivate_object(argument[0]);
+#define __bgml_function_execute_instance_deactivate_region
+return instance_deactivate_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_instance_activate_all
+return instance_activate_all();
+#define __bgml_function_execute_instance_activate_object
+return instance_activate_object(argument[0]);
+#define __bgml_function_execute_instance_activate_region
+return instance_activate_region(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_room_goto
+return room_goto(argument[0]);
+#define __bgml_function_execute_room_goto_previous
+return room_goto_previous();
+#define __bgml_function_execute_room_goto_next
+return room_goto_next();
+#define __bgml_function_execute_room_previous
+return room_previous(argument[0]);
+#define __bgml_function_execute_room_next
+return room_next(argument[0]);
+#define __bgml_function_execute_room_restart
+return room_restart();
+#define __bgml_function_execute_game_end
+return game_end();
+#define __bgml_function_execute_game_restart
+return game_restart();
+#define __bgml_function_execute_game_load
+return game_load(argument[0]);
+#define __bgml_function_execute_game_save
+return game_save(argument[0]);
+#define __bgml_function_execute_game_save_buffer
+return game_save_buffer(argument[0]);
+#define __bgml_function_execute_game_load_buffer
+return game_load_buffer(argument[0]);
+#define __bgml_function_execute_event_perform
+return event_perform(argument[0],argument[1]);
+#define __bgml_function_execute_event_user
+return event_user(argument[0]);
+#define __bgml_function_execute_event_perform_object
+return event_perform_object(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_event_inherited
+return event_inherited();
+#define __bgml_function_execute_show_debug_message
+return show_debug_message(argument[0]);
+#define __bgml_function_execute_show_debug_overlay
+return show_debug_overlay(argument[0]);
+#define __bgml_function_execute_debug_event
+return debug_event(argument[0]);
+#define __bgml_function_execute_debug_get_callstack
+return debug_get_callstack();
+#define __bgml_function_execute_alarm_get
+return alarm_get(argument[0]);
+#define __bgml_function_execute_alarm_set
+return alarm_set(argument[0],argument[1]);
+#define __bgml_function_execute_keyboard_set_map
+return keyboard_set_map(argument[0],argument[1]);
+#define __bgml_function_execute_keyboard_get_map
+return keyboard_get_map(argument[0]);
+#define __bgml_function_execute_keyboard_unset_map
+return keyboard_unset_map();
+#define __bgml_function_execute_keyboard_check
+return keyboard_check(argument[0]);
+#define __bgml_function_execute_keyboard_check_pressed
+return keyboard_check_pressed(argument[0]);
+#define __bgml_function_execute_keyboard_check_released
+return keyboard_check_released(argument[0]);
+#define __bgml_function_execute_keyboard_check_direct
+return keyboard_check_direct(argument[0]);
+#define __bgml_function_execute_keyboard_get_numlock
+return keyboard_get_numlock();
+#define __bgml_function_execute_keyboard_set_numlock
+return keyboard_set_numlock(argument[0]);
+#define __bgml_function_execute_keyboard_key_press
+return keyboard_key_press(argument[0]);
+#define __bgml_function_execute_keyboard_key_release
+return keyboard_key_release(argument[0]);
+#define __bgml_function_execute_keyboard_clear
+return keyboard_clear(argument[0]);
+#define __bgml_function_execute_io_clear
+return io_clear();
+#define __bgml_function_execute_mouse_check_button
+return mouse_check_button(argument[0]);
+#define __bgml_function_execute_mouse_check_button_pressed
+return mouse_check_button_pressed(argument[0]);
+#define __bgml_function_execute_mouse_check_button_released
+return mouse_check_button_released(argument[0]);
+#define __bgml_function_execute_mouse_wheel_up
+return mouse_wheel_up();
+#define __bgml_function_execute_mouse_wheel_down
+return mouse_wheel_down();
+#define __bgml_function_execute_mouse_clear
+return mouse_clear(argument[0]);
+#define __bgml_function_execute_draw_self
+return draw_self();
+#define __bgml_function_execute_draw_sprite
+return draw_sprite(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_sprite_pos
+return draw_sprite_pos(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_sprite_ext
+return draw_sprite_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_draw_sprite_stretched
+return draw_sprite_stretched(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_sprite_stretched_ext
+return draw_sprite_stretched_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_sprite_tiled
+return draw_sprite_tiled(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_sprite_tiled_ext
+return draw_sprite_tiled_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_sprite_part
+return draw_sprite_part(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_sprite_part_ext
+return draw_sprite_part_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+#define __bgml_function_execute_draw_sprite_general
+return draw_sprite_general(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+#define __bgml_function_execute_draw_clear
+return draw_clear(argument[0]);
+#define __bgml_function_execute_draw_clear_alpha
+return draw_clear_alpha(argument[0],argument[1]);
+#define __bgml_function_execute_draw_point
+return draw_point(argument[0],argument[1]);
+#define __bgml_function_execute_draw_line
+return draw_line(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_line_width
+return draw_line_width(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_rectangle
+return draw_rectangle(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_roundrect
+return draw_roundrect(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_roundrect_ext
+return draw_roundrect_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_triangle
+return draw_triangle(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_circle
+return draw_circle(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_ellipse
+return draw_ellipse(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_set_circle_precision
+return draw_set_circle_precision(argument[0]);
+#define __bgml_function_execute_draw_arrow
+return draw_arrow(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_button
+return draw_button(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_path
+return draw_path(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_healthbar
+return draw_healthbar(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_getpixel
+return draw_getpixel(argument[0],argument[1]);
+#define __bgml_function_execute_draw_getpixel_ext
+return draw_getpixel_ext(argument[0],argument[1]);
+#define __bgml_function_execute_draw_set_colour
+return draw_set_colour(argument[0]);
+#define __bgml_function_execute_draw_set_color
+return draw_set_color(argument[0]);
+#define __bgml_function_execute_draw_set_alpha
+return draw_set_alpha(argument[0]);
+#define __bgml_function_execute_draw_get_colour
+return draw_get_colour();
+#define __bgml_function_execute_draw_get_color
+return draw_get_color();
+#define __bgml_function_execute_draw_get_alpha
+return draw_get_alpha();
+#define __bgml_function_execute_merge_colour
+return merge_colour(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_make_colour_rgb
+return make_colour_rgb(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_make_colour_hsv
+return make_colour_hsv(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_colour_get_red
+return colour_get_red(argument[0]);
+#define __bgml_function_execute_colour_get_green
+return colour_get_green(argument[0]);
+#define __bgml_function_execute_colour_get_blue
+return colour_get_blue(argument[0]);
+#define __bgml_function_execute_colour_get_hue
+return colour_get_hue(argument[0]);
+#define __bgml_function_execute_colour_get_saturation
+return colour_get_saturation(argument[0]);
+#define __bgml_function_execute_colour_get_value
+return colour_get_value(argument[0]);
+#define __bgml_function_execute_merge_color
+return merge_color(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_make_color_rgb
+return make_color_rgb(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_make_color_hsv
+return make_color_hsv(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_color_get_red
+return color_get_red(argument[0]);
+#define __bgml_function_execute_color_get_green
+return color_get_green(argument[0]);
+#define __bgml_function_execute_color_get_blue
+return color_get_blue(argument[0]);
+#define __bgml_function_execute_color_get_hue
+return color_get_hue(argument[0]);
+#define __bgml_function_execute_color_get_saturation
+return color_get_saturation(argument[0]);
+#define __bgml_function_execute_color_get_value
+return color_get_value(argument[0]);
+#define __bgml_function_execute_screen_save
+return screen_save(argument[0]);
+#define __bgml_function_execute_screen_save_part
+return screen_save_part(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_set_font
+return draw_set_font(argument[0]);
+#define __bgml_function_execute_draw_set_halign
+return draw_set_halign(argument[0]);
+#define __bgml_function_execute_draw_set_valign
+return draw_set_valign(argument[0]);
+#define __bgml_function_execute_draw_text
+return draw_text(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_text_ext
+return draw_text_ext(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_string_width
+return string_width(argument[0]);
+#define __bgml_function_execute_string_height
+return string_height(argument[0]);
+#define __bgml_function_execute_string_width_ext
+return string_width_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_string_height_ext
+return string_height_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_text_transformed
+return draw_text_transformed(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_text_ext_transformed
+return draw_text_ext_transformed(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_text_colour
+return draw_text_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_text_ext_colour
+return draw_text_ext_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_draw_text_transformed_colour
+return draw_text_transformed_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_text_ext_transformed_colour
+return draw_text_ext_transformed_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+#define __bgml_function_execute_draw_text_color
+return draw_text_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_text_ext_color
+return draw_text_ext_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_draw_text_transformed_color
+return draw_text_transformed_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_text_ext_transformed_color
+return draw_text_ext_transformed_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+#define __bgml_function_execute_draw_point_colour
+return draw_point_colour(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_line_colour
+return draw_line_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_line_width_colour
+return draw_line_width_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_rectangle_colour
+return draw_rectangle_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_draw_roundrect_colour
+return draw_roundrect_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_roundrect_colour_ext
+return draw_roundrect_colour_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_draw_triangle_colour
+return draw_triangle_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_draw_circle_colour
+return draw_circle_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_ellipse_colour
+return draw_ellipse_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_point_color
+return draw_point_color(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_line_color
+return draw_line_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_line_width_color
+return draw_line_width_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_rectangle_color
+return draw_rectangle_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_draw_roundrect_color
+return draw_roundrect_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_roundrect_color_ext
+return draw_roundrect_color_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_draw_triangle_color
+return draw_triangle_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_draw_circle_color
+return draw_circle_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_ellipse_color
+return draw_ellipse_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_primitive_begin
+return draw_primitive_begin(argument[0]);
+#define __bgml_function_execute_draw_vertex
+return draw_vertex(argument[0],argument[1]);
+#define __bgml_function_execute_draw_vertex_colour
+return draw_vertex_colour(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_vertex_color
+return draw_vertex_color(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_primitive_end
+return draw_primitive_end();
+#define __bgml_function_execute_sprite_get_uvs
+return sprite_get_uvs(argument[0],argument[1]);
+#define __bgml_function_execute_font_get_uvs
+return font_get_uvs(argument[0]);
+#define __bgml_function_execute_sprite_get_texture
+return sprite_get_texture(argument[0],argument[1]);
+#define __bgml_function_execute_font_get_texture
+return font_get_texture(argument[0]);
+#define __bgml_function_execute_texture_get_width
+return texture_get_width(argument[0]);
+#define __bgml_function_execute_texture_get_height
+return texture_get_height(argument[0]);
+#define __bgml_function_execute_texture_get_uvs
+return texture_get_uvs(argument[0]);
+#define __bgml_function_execute_draw_primitive_begin_texture
+return draw_primitive_begin_texture(argument[0],argument[1]);
+#define __bgml_function_execute_draw_vertex_texture
+return draw_vertex_texture(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_draw_vertex_texture_colour
+return draw_vertex_texture_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_vertex_texture_color
+return draw_vertex_texture_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_texture_global_scale
+return texture_global_scale(argument[0]);
+#define __bgml_function_execute_surface_create
+return surface_create(argument[0],argument[1]);
+#define __bgml_function_execute_surface_create_ext
+return surface_create_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_surface_resize
+return surface_resize(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_surface_free
+return surface_free(argument[0]);
+#define __bgml_function_execute_surface_exists
+return surface_exists(argument[0]);
+#define __bgml_function_execute_surface_get_width
+return surface_get_width(argument[0]);
+#define __bgml_function_execute_surface_get_height
+return surface_get_height(argument[0]);
+#define __bgml_function_execute_surface_get_texture
+return surface_get_texture(argument[0]);
+#define __bgml_function_execute_surface_set_target
+return surface_set_target(argument[0]);
+#define __bgml_function_execute_surface_set_target_ext
+return surface_set_target_ext(argument[0],argument[1]);
+#define __bgml_function_execute_surface_reset_target
+return surface_reset_target();
+#define __bgml_function_execute_surface_depth_disable
+return surface_depth_disable(argument[0]);
+#define __bgml_function_execute_surface_get_depth_disable
+return surface_get_depth_disable();
+#define __bgml_function_execute_draw_surface
+return draw_surface(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_surface_stretched
+return draw_surface_stretched(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_surface_tiled
+return draw_surface_tiled(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_surface_part
+return draw_surface_part(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_surface_ext
+return draw_surface_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_draw_surface_stretched_ext
+return draw_surface_stretched_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_surface_tiled_ext
+return draw_surface_tiled_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_draw_surface_part_ext
+return draw_surface_part_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_surface_general
+return draw_surface_general(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+#define __bgml_function_execute_surface_getpixel
+return surface_getpixel(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_surface_getpixel_ext
+return surface_getpixel_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_surface_save
+return surface_save(argument[0],argument[1]);
+#define __bgml_function_execute_surface_save_part
+return surface_save_part(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_surface_copy
+return surface_copy(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_surface_copy_part
+return surface_copy_part(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_application_surface_draw_enable
+return application_surface_draw_enable(argument[0]);
+#define __bgml_function_execute_application_get_position
+return application_get_position();
+#define __bgml_function_execute_application_surface_enable
+return application_surface_enable(argument[0]);
+#define __bgml_function_execute_application_surface_is_enabled
+return application_surface_is_enabled();
+#define __bgml_function_execute_display_get_width
+return display_get_width();
+#define __bgml_function_execute_display_get_height
+return display_get_height();
+#define __bgml_function_execute_display_get_orientation
+return display_get_orientation();
+#define __bgml_function_execute_display_get_gui_width
+return display_get_gui_width();
+#define __bgml_function_execute_display_get_gui_height
+return display_get_gui_height();
+#define __bgml_function_execute_display_reset
+return display_reset(argument[0],argument[1]);
+#define __bgml_function_execute_display_mouse_get_x
+return display_mouse_get_x();
+#define __bgml_function_execute_display_mouse_get_y
+return display_mouse_get_y();
+#define __bgml_function_execute_display_mouse_set
+return display_mouse_set(argument[0],argument[1]);
+#define __bgml_function_execute_window_set_fullscreen
+return window_set_fullscreen(argument[0]);
+#define __bgml_function_execute_window_get_fullscreen
+return window_get_fullscreen();
+#define __bgml_function_execute_window_set_caption
+return window_set_caption(argument[0]);
+#define __bgml_function_execute_window_set_min_width
+return window_set_min_width(argument[0]);
+#define __bgml_function_execute_window_set_max_width
+return window_set_max_width(argument[0]);
+#define __bgml_function_execute_window_set_min_height
+return window_set_min_height(argument[0]);
+#define __bgml_function_execute_window_set_max_height
+return window_set_max_height(argument[0]);
+#define __bgml_function_execute_window_get_visible_rects
+return window_get_visible_rects(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_window_get_caption
+return window_get_caption();
+#define __bgml_function_execute_window_set_cursor
+return window_set_cursor(argument[0]);
+#define __bgml_function_execute_window_get_cursor
+return window_get_cursor();
+#define __bgml_function_execute_window_set_colour
+return window_set_colour(argument[0]);
+#define __bgml_function_execute_window_get_colour
+return window_get_colour();
+#define __bgml_function_execute_window_set_color
+return window_set_color(argument[0]);
+#define __bgml_function_execute_window_get_color
+return window_get_color();
+#define __bgml_function_execute_window_set_position
+return window_set_position(argument[0],argument[1]);
+#define __bgml_function_execute_window_set_size
+return window_set_size(argument[0],argument[1]);
+#define __bgml_function_execute_window_set_rectangle
+return window_set_rectangle(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_window_center
+return window_center();
+#define __bgml_function_execute_window_get_x
+return window_get_x();
+#define __bgml_function_execute_window_get_y
+return window_get_y();
+#define __bgml_function_execute_window_get_width
+return window_get_width();
+#define __bgml_function_execute_window_get_height
+return window_get_height();
+#define __bgml_function_execute_window_mouse_get_x
+return window_mouse_get_x();
+#define __bgml_function_execute_window_mouse_get_y
+return window_mouse_get_y();
+#define __bgml_function_execute_window_mouse_set
+return window_mouse_set(argument[0],argument[1]);
+#define __bgml_function_execute_window_view_mouse_get_x
+return window_view_mouse_get_x(argument[0]);
+#define __bgml_function_execute_window_view_mouse_get_y
+return window_view_mouse_get_y(argument[0]);
+#define __bgml_function_execute_window_views_mouse_get_x
+return window_views_mouse_get_x();
+#define __bgml_function_execute_window_views_mouse_get_y
+return window_views_mouse_get_y();
+#define __bgml_function_execute_audio_listener_position
+return audio_listener_position(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_listener_velocity
+return audio_listener_velocity(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_listener_orientation
+return audio_listener_orientation(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_audio_emitter_position
+return audio_emitter_position(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_emitter_create
+return audio_emitter_create();
+#define __bgml_function_execute_audio_emitter_free
+return audio_emitter_free(argument[0]);
+#define __bgml_function_execute_audio_emitter_exists
+return audio_emitter_exists(argument[0]);
+#define __bgml_function_execute_audio_emitter_pitch
+return audio_emitter_pitch(argument[0],argument[1]);
+#define __bgml_function_execute_audio_emitter_velocity
+return audio_emitter_velocity(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_emitter_falloff
+return audio_emitter_falloff(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_emitter_gain
+return audio_emitter_gain(argument[0],argument[1]);
+#define __bgml_function_execute_audio_play_sound
+return audio_play_sound(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_play_sound_on
+return audio_play_sound_on(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_play_sound_at
+return audio_play_sound_at(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_audio_stop_sound
+return audio_stop_sound(argument[0]);
+#define __bgml_function_execute_audio_resume_music
+return audio_resume_music();
+#define __bgml_function_execute_audio_music_is_playing
+return audio_music_is_playing();
+#define __bgml_function_execute_audio_resume_sound
+return audio_resume_sound(argument[0]);
+#define __bgml_function_execute_audio_pause_sound
+return audio_pause_sound(argument[0]);
+#define __bgml_function_execute_audio_pause_music
+return audio_pause_music();
+#define __bgml_function_execute_audio_channel_num
+return audio_channel_num(argument[0]);
+#define __bgml_function_execute_audio_sound_length
+return audio_sound_length(argument[0]);
+#define __bgml_function_execute_audio_get_type
+return audio_get_type(argument[0]);
+#define __bgml_function_execute_audio_falloff_set_model
+return audio_falloff_set_model(argument[0]);
+#define __bgml_function_execute_audio_play_music
+return audio_play_music(argument[0],argument[1]);
+#define __bgml_function_execute_audio_stop_music
+return audio_stop_music();
+#define __bgml_function_execute_audio_master_gain
+return audio_master_gain(argument[0]);
+#define __bgml_function_execute_audio_music_gain
+return audio_music_gain(argument[0],argument[1]);
+#define __bgml_function_execute_audio_sound_gain
+return audio_sound_gain(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_sound_pitch
+return audio_sound_pitch(argument[0],argument[1]);
+#define __bgml_function_execute_audio_stop_all
+return audio_stop_all();
+#define __bgml_function_execute_audio_resume_all
+return audio_resume_all();
+#define __bgml_function_execute_audio_pause_all
+return audio_pause_all();
+#define __bgml_function_execute_audio_is_playing
+return audio_is_playing(argument[0]);
+#define __bgml_function_execute_audio_is_paused
+return audio_is_paused(argument[0]);
+#define __bgml_function_execute_audio_exists
+return audio_exists(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_gain
+return audio_emitter_get_gain(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_pitch
+return audio_emitter_get_pitch(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_x
+return audio_emitter_get_x(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_y
+return audio_emitter_get_y(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_z
+return audio_emitter_get_z(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_vx
+return audio_emitter_get_vx(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_vy
+return audio_emitter_get_vy(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_vz
+return audio_emitter_get_vz(argument[0]);
+#define __bgml_function_execute_audio_listener_set_position
+return audio_listener_set_position(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_listener_set_velocity
+return audio_listener_set_velocity(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_listener_set_orientation
+return audio_listener_set_orientation(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_audio_listener_get_data
+return audio_listener_get_data(argument[0]);
+#define __bgml_function_execute_audio_set_master_gain
+return audio_set_master_gain(argument[0],argument[1]);
+#define __bgml_function_execute_audio_get_master_gain
+return audio_get_master_gain(argument[0]);
+#define __bgml_function_execute_audio_sound_get_gain
+return audio_sound_get_gain(argument[0]);
+#define __bgml_function_execute_audio_sound_get_pitch
+return audio_sound_get_pitch(argument[0]);
+#define __bgml_function_execute_audio_get_name
+return audio_get_name(argument[0]);
+#define __bgml_function_execute_audio_sound_set_track_position
+return audio_sound_set_track_position(argument[0],argument[1]);
+#define __bgml_function_execute_audio_sound_get_track_position
+return audio_sound_get_track_position(argument[0]);
+#define __bgml_function_execute_audio_create_stream
+return audio_create_stream(argument[0]);
+#define __bgml_function_execute_audio_destroy_stream
+return audio_destroy_stream(argument[0]);
+#define __bgml_function_execute_audio_create_sync_group
+return audio_create_sync_group(argument[0]);
+#define __bgml_function_execute_audio_destroy_sync_group
+return audio_destroy_sync_group(argument[0]);
+#define __bgml_function_execute_audio_play_in_sync_group
+return audio_play_in_sync_group(argument[0],argument[1]);
+#define __bgml_function_execute_audio_start_sync_group
+return audio_start_sync_group(argument[0]);
+#define __bgml_function_execute_audio_stop_sync_group
+return audio_stop_sync_group(argument[0]);
+#define __bgml_function_execute_audio_pause_sync_group
+return audio_pause_sync_group(argument[0]);
+#define __bgml_function_execute_audio_resume_sync_group
+return audio_resume_sync_group(argument[0]);
+#define __bgml_function_execute_audio_sync_group_get_track_pos
+return audio_sync_group_get_track_pos(argument[0]);
+#define __bgml_function_execute_audio_sync_group_debug
+return audio_sync_group_debug(argument[0]);
+#define __bgml_function_execute_audio_sync_group_is_playing
+return audio_sync_group_is_playing(argument[0]);
+#define __bgml_function_execute_audio_debug
+return audio_debug(argument[0]);
+#define __bgml_function_execute_audio_group_load
+return audio_group_load(argument[0]);
+#define __bgml_function_execute_audio_group_unload
+return audio_group_unload(argument[0]);
+#define __bgml_function_execute_audio_group_is_loaded
+return audio_group_is_loaded(argument[0]);
+#define __bgml_function_execute_audio_group_load_progress
+return audio_group_load_progress(argument[0]);
+#define __bgml_function_execute_audio_group_name
+return audio_group_name(argument[0]);
+#define __bgml_function_execute_audio_group_stop_all
+return audio_group_stop_all(argument[0]);
+#define __bgml_function_execute_audio_group_set_gain
+return audio_group_set_gain(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_create_buffer_sound
+return audio_create_buffer_sound(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_audio_free_buffer_sound
+return audio_free_buffer_sound(argument[0]);
+#define __bgml_function_execute_audio_create_play_queue
+return audio_create_play_queue(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_audio_free_play_queue
+return audio_free_play_queue(argument[0]);
+#define __bgml_function_execute_audio_queue_sound
+return audio_queue_sound(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_audio_get_recorder_count
+return audio_get_recorder_count();
+#define __bgml_function_execute_audio_get_recorder_info
+return audio_get_recorder_info(argument[0]);
+#define __bgml_function_execute_audio_start_recording
+return audio_start_recording(argument[0]);
+#define __bgml_function_execute_audio_stop_recording
+return audio_stop_recording(argument[0]);
+#define __bgml_function_execute_audio_sound_get_listener_mask
+return audio_sound_get_listener_mask(argument[0]);
+#define __bgml_function_execute_audio_emitter_get_listener_mask
+return audio_emitter_get_listener_mask(argument[0]);
+#define __bgml_function_execute_audio_get_listener_mask
+return audio_get_listener_mask();
+#define __bgml_function_execute_audio_sound_set_listener_mask
+return audio_sound_set_listener_mask(argument[0],argument[1]);
+#define __bgml_function_execute_audio_emitter_set_listener_mask
+return audio_emitter_set_listener_mask(argument[0],argument[1]);
+#define __bgml_function_execute_audio_set_listener_mask
+return audio_set_listener_mask(argument[0]);
+#define __bgml_function_execute_audio_get_listener_count
+return audio_get_listener_count();
+#define __bgml_function_execute_audio_get_listener_info
+return audio_get_listener_info(argument[0]);
+#define __bgml_function_execute_audio_system
+return audio_system();
+#define __bgml_function_execute_show_message
+return show_message(argument[0]);
+#define __bgml_function_execute_show_message_async
+return show_message_async(argument[0]);
+#define __bgml_function_execute_clickable_add
+return clickable_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_clickable_add_ext
+return clickable_add_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_clickable_change
+return clickable_change(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_clickable_change_ext
+return clickable_change_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_clickable_delete
+return clickable_delete(argument[0]);
+#define __bgml_function_execute_clickable_exists
+return clickable_exists(argument[0]);
+#define __bgml_function_execute_clickable_set_style
+return clickable_set_style(argument[0],argument[1]);
+#define __bgml_function_execute_show_question
+return show_question(argument[0]);
+#define __bgml_function_execute_show_question_async
+return show_question_async(argument[0]);
+#define __bgml_function_execute_get_integer
+return get_integer(argument[0],argument[1]);
+#define __bgml_function_execute_get_string
+return get_string(argument[0],argument[1]);
+#define __bgml_function_execute_get_integer_async
+return get_integer_async(argument[0],argument[1]);
+#define __bgml_function_execute_get_string_async
+return get_string_async(argument[0],argument[1]);
+#define __bgml_function_execute_get_login_async
+return get_login_async(argument[0],argument[1]);
+#define __bgml_function_execute_get_open_filename
+return get_open_filename(argument[0],argument[1]);
+#define __bgml_function_execute_get_save_filename
+return get_save_filename(argument[0],argument[1]);
+#define __bgml_function_execute_get_open_filename_ext
+return get_open_filename_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_get_save_filename_ext
+return get_save_filename_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_show_error
+return show_error(argument[0],argument[1]);
+#define __bgml_function_execute_highscore_clear
+return highscore_clear();
+#define __bgml_function_execute_highscore_add
+return highscore_add(argument[0],argument[1]);
+#define __bgml_function_execute_highscore_value
+return highscore_value(argument[0]);
+#define __bgml_function_execute_highscore_name
+return highscore_name(argument[0]);
+#define __bgml_function_execute_draw_highscore
+return draw_highscore(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_sprite_exists
+return sprite_exists(argument[0]);
+#define __bgml_function_execute_sprite_get_name
+return sprite_get_name(argument[0]);
+#define __bgml_function_execute_sprite_get_number
+return sprite_get_number(argument[0]);
+#define __bgml_function_execute_sprite_get_width
+return sprite_get_width(argument[0]);
+#define __bgml_function_execute_sprite_get_height
+return sprite_get_height(argument[0]);
+#define __bgml_function_execute_sprite_get_xoffset
+return sprite_get_xoffset(argument[0]);
+#define __bgml_function_execute_sprite_get_yoffset
+return sprite_get_yoffset(argument[0]);
+#define __bgml_function_execute_sprite_get_bbox_left
+return sprite_get_bbox_left(argument[0]);
+#define __bgml_function_execute_sprite_get_bbox_right
+return sprite_get_bbox_right(argument[0]);
+#define __bgml_function_execute_sprite_get_bbox_top
+return sprite_get_bbox_top(argument[0]);
+#define __bgml_function_execute_sprite_get_bbox_bottom
+return sprite_get_bbox_bottom(argument[0]);
+#define __bgml_function_execute_sprite_save
+return sprite_save(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_sprite_save_strip
+return sprite_save_strip(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_set_cache_size
+return sprite_set_cache_size(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_set_cache_size_ext
+return sprite_set_cache_size_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_sprite_get_tpe
+return sprite_get_tpe(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_prefetch
+return sprite_prefetch(argument[0]);
+#define __bgml_function_execute_sprite_prefetch_multi
+return sprite_prefetch_multi(argument[0]);
+#define __bgml_function_execute_sprite_flush
+return sprite_flush(argument[0]);
+#define __bgml_function_execute_sprite_flush_multi
+return sprite_flush_multi(argument[0]);
+#define __bgml_function_execute_sprite_set_speed
+return sprite_set_speed(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_sprite_get_speed_type
+return sprite_get_speed_type(argument[0]);
+#define __bgml_function_execute_sprite_get_speed
+return sprite_get_speed(argument[0]);
+#define __bgml_function_execute_font_exists
+return font_exists(argument[0]);
+#define __bgml_function_execute_font_get_name
+return font_get_name(argument[0]);
+#define __bgml_function_execute_font_get_fontname
+return font_get_fontname(argument[0]);
+#define __bgml_function_execute_font_get_bold
+return font_get_bold(argument[0]);
+#define __bgml_function_execute_font_get_italic
+return font_get_italic(argument[0]);
+#define __bgml_function_execute_font_get_first
+return font_get_first(argument[0]);
+#define __bgml_function_execute_font_get_last
+return font_get_last(argument[0]);
+#define __bgml_function_execute_font_get_size
+return font_get_size(argument[0]);
+#define __bgml_function_execute_font_set_cache_size
+return font_set_cache_size(argument[0],argument[1]);
+#define __bgml_function_execute_path_exists
+return path_exists(argument[0]);
+#define __bgml_function_execute_path_get_name
+return path_get_name(argument[0]);
+#define __bgml_function_execute_path_get_length
+return path_get_length(argument[0]);
+#define __bgml_function_execute_path_get_time
+return path_get_time(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_kind
+return path_get_kind(argument[0]);
+#define __bgml_function_execute_path_get_closed
+return path_get_closed(argument[0]);
+#define __bgml_function_execute_path_get_precision
+return path_get_precision(argument[0]);
+#define __bgml_function_execute_path_get_number
+return path_get_number(argument[0]);
+#define __bgml_function_execute_path_get_point_x
+return path_get_point_x(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_point_y
+return path_get_point_y(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_point_speed
+return path_get_point_speed(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_x
+return path_get_x(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_y
+return path_get_y(argument[0],argument[1]);
+#define __bgml_function_execute_path_get_speed
+return path_get_speed(argument[0],argument[1]);
+#define __bgml_function_execute_script_exists
+return script_exists(argument[0]);
+#define __bgml_function_execute_script_get_name
+return script_get_name(argument[0]);
+#define __bgml_function_execute_timeline_add
+return timeline_add();
+#define __bgml_function_execute_timeline_delete
+return timeline_delete(argument[0]);
+#define __bgml_function_execute_timeline_clear
+return timeline_clear(argument[0]);
+#define __bgml_function_execute_timeline_exists
+return timeline_exists(argument[0]);
+#define __bgml_function_execute_timeline_get_name
+return timeline_get_name(argument[0]);
+#define __bgml_function_execute_timeline_moment_clear
+return timeline_moment_clear(argument[0],argument[1]);
+#define __bgml_function_execute_timeline_moment_add_script
+return timeline_moment_add_script(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_timeline_size
+return timeline_size(argument[0]);
+#define __bgml_function_execute_timeline_max_moment
+return timeline_max_moment(argument[0]);
+#define __bgml_function_execute_object_exists
+return object_exists(argument[0]);
+#define __bgml_function_execute_object_get_name
+return object_get_name(argument[0]);
+#define __bgml_function_execute_object_get_sprite
+return object_get_sprite(argument[0]);
+#define __bgml_function_execute_object_get_solid
+return object_get_solid(argument[0]);
+#define __bgml_function_execute_object_get_visible
+return object_get_visible(argument[0]);
+#define __bgml_function_execute_object_get_persistent
+return object_get_persistent(argument[0]);
+#define __bgml_function_execute_object_get_mask
+return object_get_mask(argument[0]);
+#define __bgml_function_execute_object_get_parent
+return object_get_parent(argument[0]);
+#define __bgml_function_execute_object_get_physics
+return object_get_physics(argument[0]);
+#define __bgml_function_execute_object_is_ancestor
+return object_is_ancestor(argument[0],argument[1]);
+#define __bgml_function_execute_room_exists
+return room_exists(argument[0]);
+#define __bgml_function_execute_room_get_name
+return room_get_name(argument[0]);
+#define __bgml_function_execute_sprite_set_offset
+return sprite_set_offset(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_sprite_duplicate
+return sprite_duplicate(argument[0]);
+#define __bgml_function_execute_sprite_assign
+return sprite_assign(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_merge
+return sprite_merge(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_add
+return sprite_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_sprite_replace
+return sprite_replace(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_sprite_create_from_surface
+return sprite_create_from_surface(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_sprite_add_from_surface
+return sprite_add_from_surface(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_sprite_delete
+return sprite_delete(argument[0]);
+#define __bgml_function_execute_sprite_set_alpha_from_sprite
+return sprite_set_alpha_from_sprite(argument[0],argument[1]);
+#define __bgml_function_execute_sprite_collision_mask
+return sprite_collision_mask(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_font_add_enable_aa
+return font_add_enable_aa(argument[0]);
+#define __bgml_function_execute_font_add_get_enable_aa
+return font_add_get_enable_aa();
+#define __bgml_function_execute_font_add
+return font_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_font_add_sprite
+return font_add_sprite(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_font_add_sprite_ext
+return font_add_sprite_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_font_replace_sprite
+return font_replace_sprite(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_font_replace_sprite_ext
+return font_replace_sprite_ext(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_font_delete
+return font_delete(argument[0]);
+#define __bgml_function_execute_path_set_kind
+return path_set_kind(argument[0],argument[1]);
+#define __bgml_function_execute_path_set_closed
+return path_set_closed(argument[0],argument[1]);
+#define __bgml_function_execute_path_set_precision
+return path_set_precision(argument[0],argument[1]);
+#define __bgml_function_execute_path_add
+return path_add();
+#define __bgml_function_execute_path_assign
+return path_assign(argument[0],argument[1]);
+#define __bgml_function_execute_path_duplicate
+return path_duplicate(argument[0]);
+#define __bgml_function_execute_path_append
+return path_append(argument[0],argument[1]);
+#define __bgml_function_execute_path_delete
+return path_delete(argument[0]);
+#define __bgml_function_execute_path_add_point
+return path_add_point(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_path_insert_point
+return path_insert_point(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_path_change_point
+return path_change_point(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_path_delete_point
+return path_delete_point(argument[0],argument[1]);
+#define __bgml_function_execute_path_clear_points
+return path_clear_points(argument[0]);
+#define __bgml_function_execute_path_reverse
+return path_reverse(argument[0]);
+#define __bgml_function_execute_path_mirror
+return path_mirror(argument[0]);
+#define __bgml_function_execute_path_flip
+return path_flip(argument[0]);
+#define __bgml_function_execute_path_rotate
+return path_rotate(argument[0],argument[1]);
+#define __bgml_function_execute_path_rescale
+return path_rescale(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_path_shift
+return path_shift(argument[0],argument[1],argument[2]);
+switch(argument_count) {
+    case 0:
+        return script_execute();
+    case 1:
+        return script_execute(argument[0]);
+    case 2:
+        return script_execute(argument[0],argument[1]);
+    case 3:
+        return script_execute(argument[0],argument[1],argument[2]);
+    case 4:
+        return script_execute(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return script_execute(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_object_set_sprite
+return object_set_sprite(argument[0],argument[1]);
+#define __bgml_function_execute_object_set_solid
+return object_set_solid(argument[0],argument[1]);
+#define __bgml_function_execute_object_set_visible
+return object_set_visible(argument[0],argument[1]);
+#define __bgml_function_execute_object_set_persistent
+return object_set_persistent(argument[0],argument[1]);
+#define __bgml_function_execute_object_set_mask
+return object_set_mask(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_width
+return room_set_width(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_height
+return room_set_height(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_persistent
+return room_set_persistent(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_background_colour
+return room_set_background_colour(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_room_set_background_color
+return room_set_background_color(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_room_set_viewport
+return room_set_viewport(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_room_get_viewport
+return room_get_viewport(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_view_enabled
+return room_set_view_enabled(argument[0],argument[1]);
+#define __bgml_function_execute_room_add
+return room_add();
+#define __bgml_function_execute_room_duplicate
+return room_duplicate(argument[0]);
+#define __bgml_function_execute_room_assign
+return room_assign(argument[0],argument[1]);
+#define __bgml_function_execute_room_instance_add
+return room_instance_add(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_room_instance_clear
+return room_instance_clear(argument[0]);
+#define __bgml_function_execute_room_get_camera
+return room_get_camera(argument[0],argument[1]);
+#define __bgml_function_execute_room_set_camera
+return room_set_camera(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_asset_get_index
+return asset_get_index(argument[0]);
+#define __bgml_function_execute_asset_get_type
+return asset_get_type(argument[0]);
+#define __bgml_function_execute_file_text_open_from_string
+return file_text_open_from_string(argument[0]);
+#define __bgml_function_execute_file_text_open_read
+return file_text_open_read(argument[0]);
+#define __bgml_function_execute_file_text_open_write
+return file_text_open_write(argument[0]);
+#define __bgml_function_execute_file_text_open_append
+return file_text_open_append(argument[0]);
+#define __bgml_function_execute_file_text_close
+return file_text_close(argument[0]);
+#define __bgml_function_execute_file_text_write_string
+return file_text_write_string(argument[0],argument[1]);
+#define __bgml_function_execute_file_text_write_real
+return file_text_write_real(argument[0],argument[1]);
+#define __bgml_function_execute_file_text_writeln
+return file_text_writeln(argument[0]);
+#define __bgml_function_execute_file_text_read_string
+return file_text_read_string(argument[0]);
+#define __bgml_function_execute_file_text_read_real
+return file_text_read_real(argument[0]);
+#define __bgml_function_execute_file_text_readln
+return file_text_readln(argument[0]);
+#define __bgml_function_execute_file_text_eof
+return file_text_eof(argument[0]);
+#define __bgml_function_execute_file_text_eoln
+return file_text_eoln(argument[0]);
+#define __bgml_function_execute_file_exists
+return file_exists(argument[0]);
+#define __bgml_function_execute_file_delete
+return file_delete(argument[0]);
+#define __bgml_function_execute_file_rename
+return file_rename(argument[0],argument[1]);
+#define __bgml_function_execute_file_copy
+return file_copy(argument[0],argument[1]);
+#define __bgml_function_execute_directory_exists
+return directory_exists(argument[0]);
+#define __bgml_function_execute_directory_create
+return directory_create(argument[0]);
+#define __bgml_function_execute_directory_destroy
+return directory_destroy(argument[0]);
+#define __bgml_function_execute_file_find_first
+return file_find_first(argument[0],argument[1]);
+#define __bgml_function_execute_file_find_next
+return file_find_next();
+#define __bgml_function_execute_file_find_close
+return file_find_close();
+#define __bgml_function_execute_file_attributes
+return file_attributes(argument[0],argument[1]);
+#define __bgml_function_execute_filename_name
+return filename_name(argument[0]);
+#define __bgml_function_execute_filename_path
+return filename_path(argument[0]);
+#define __bgml_function_execute_filename_dir
+return filename_dir(argument[0]);
+#define __bgml_function_execute_filename_drive
+return filename_drive(argument[0]);
+#define __bgml_function_execute_filename_ext
+return filename_ext(argument[0]);
+#define __bgml_function_execute_filename_change_ext
+return filename_change_ext(argument[0],argument[1]);
+#define __bgml_function_execute_file_bin_open
+return file_bin_open(argument[0],argument[1]);
+#define __bgml_function_execute_file_bin_rewrite
+return file_bin_rewrite(argument[0]);
+#define __bgml_function_execute_file_bin_close
+return file_bin_close(argument[0]);
+#define __bgml_function_execute_file_bin_position
+return file_bin_position(argument[0]);
+#define __bgml_function_execute_file_bin_size
+return file_bin_size(argument[0]);
+#define __bgml_function_execute_file_bin_seek
+return file_bin_seek(argument[0],argument[1]);
+#define __bgml_function_execute_file_bin_write_byte
+return file_bin_write_byte(argument[0],argument[1]);
+#define __bgml_function_execute_file_bin_read_byte
+return file_bin_read_byte(argument[0]);
+#define __bgml_function_execute_parameter_count
+return parameter_count();
+#define __bgml_function_execute_parameter_string
+return parameter_string(argument[0]);
+#define __bgml_function_execute_environment_get_variable
+return environment_get_variable(argument[0]);
+#define __bgml_function_execute_ini_open_from_string
+return ini_open_from_string(argument[0]);
+#define __bgml_function_execute_ini_open
+return ini_open(argument[0]);
+#define __bgml_function_execute_ini_close
+return ini_close();
+#define __bgml_function_execute_ini_read_string
+return ini_read_string(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ini_read_real
+return ini_read_real(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ini_write_string
+return ini_write_string(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ini_write_real
+return ini_write_real(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ini_key_exists
+return ini_key_exists(argument[0],argument[1]);
+#define __bgml_function_execute_ini_section_exists
+return ini_section_exists(argument[0]);
+#define __bgml_function_execute_ini_key_delete
+return ini_key_delete(argument[0],argument[1]);
+#define __bgml_function_execute_ini_section_delete
+return ini_section_delete(argument[0]);
+#define __bgml_function_execute_ds_set_precision
+return ds_set_precision(argument[0]);
+#define __bgml_function_execute_ds_exists
+return ds_exists(argument[0],argument[1]);
+#define __bgml_function_execute_ds_stack_create
+return ds_stack_create();
+#define __bgml_function_execute_ds_stack_destroy
+return ds_stack_destroy(argument[0]);
+#define __bgml_function_execute_ds_stack_clear
+return ds_stack_clear(argument[0]);
+#define __bgml_function_execute_ds_stack_copy
+return ds_stack_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_stack_size
+return ds_stack_size(argument[0]);
+#define __bgml_function_execute_ds_stack_empty
+return ds_stack_empty(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_stack_push();
+    case 1:
+        return ds_stack_push(argument[0]);
+    case 2:
+        return ds_stack_push(argument[0],argument[1]);
+    case 3:
+        return ds_stack_push(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_stack_pop
+return ds_stack_pop(argument[0]);
+#define __bgml_function_execute_ds_stack_top
+return ds_stack_top(argument[0]);
+#define __bgml_function_execute_ds_stack_write
+return ds_stack_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_stack_read();
+    case 1:
+        return ds_stack_read(argument[0]);
+    case 2:
+        return ds_stack_read(argument[0],argument[1]);
+    case 3:
+        return ds_stack_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_stack_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_queue_create
+return ds_queue_create();
+#define __bgml_function_execute_ds_queue_destroy
+return ds_queue_destroy(argument[0]);
+#define __bgml_function_execute_ds_queue_clear
+return ds_queue_clear(argument[0]);
+#define __bgml_function_execute_ds_queue_copy
+return ds_queue_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_queue_size
+return ds_queue_size(argument[0]);
+#define __bgml_function_execute_ds_queue_empty
+return ds_queue_empty(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_queue_enqueue();
+    case 1:
+        return ds_queue_enqueue(argument[0]);
+    case 2:
+        return ds_queue_enqueue(argument[0],argument[1]);
+    case 3:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_queue_enqueue(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_queue_dequeue
+return ds_queue_dequeue(argument[0]);
+#define __bgml_function_execute_ds_queue_head
+return ds_queue_head(argument[0]);
+#define __bgml_function_execute_ds_queue_tail
+return ds_queue_tail(argument[0]);
+#define __bgml_function_execute_ds_queue_write
+return ds_queue_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_queue_read();
+    case 1:
+        return ds_queue_read(argument[0]);
+    case 2:
+        return ds_queue_read(argument[0],argument[1]);
+    case 3:
+        return ds_queue_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_queue_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_list_create
+return ds_list_create();
+#define __bgml_function_execute_ds_list_destroy
+return ds_list_destroy(argument[0]);
+#define __bgml_function_execute_ds_list_clear
+return ds_list_clear(argument[0]);
+#define __bgml_function_execute_ds_list_copy
+return ds_list_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_size
+return ds_list_size(argument[0]);
+#define __bgml_function_execute_ds_list_empty
+return ds_list_empty(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_list_add();
+    case 1:
+        return ds_list_add(argument[0]);
+    case 2:
+        return ds_list_add(argument[0],argument[1]);
+    case 3:
+        return ds_list_add(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_list_add(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_list_insert
+return ds_list_insert(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_list_replace
+return ds_list_replace(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_list_delete
+return ds_list_delete(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_find_index
+return ds_list_find_index(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_find_value
+return ds_list_find_value(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_mark_as_list
+return ds_list_mark_as_list(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_mark_as_map
+return ds_list_mark_as_map(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_sort
+return ds_list_sort(argument[0],argument[1]);
+#define __bgml_function_execute_ds_list_shuffle
+return ds_list_shuffle(argument[0]);
+#define __bgml_function_execute_ds_list_write
+return ds_list_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_list_read();
+    case 1:
+        return ds_list_read(argument[0]);
+    case 2:
+        return ds_list_read(argument[0],argument[1]);
+    case 3:
+        return ds_list_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_list_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_list_set
+return ds_list_set(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_create
+return ds_map_create();
+#define __bgml_function_execute_ds_map_destroy
+return ds_map_destroy(argument[0]);
+#define __bgml_function_execute_ds_map_clear
+return ds_map_clear(argument[0]);
+#define __bgml_function_execute_ds_map_copy
+return ds_map_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_size
+return ds_map_size(argument[0]);
+#define __bgml_function_execute_ds_map_empty
+return ds_map_empty(argument[0]);
+#define __bgml_function_execute_ds_map_add
+return ds_map_add(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_add_list
+return ds_map_add_list(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_add_map
+return ds_map_add_map(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_replace
+return ds_map_replace(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_replace_map
+return ds_map_replace_map(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_replace_list
+return ds_map_replace_list(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_map_delete
+return ds_map_delete(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_exists
+return ds_map_exists(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_find_value
+return ds_map_find_value(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_find_previous
+return ds_map_find_previous(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_find_next
+return ds_map_find_next(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_find_first
+return ds_map_find_first(argument[0]);
+#define __bgml_function_execute_ds_map_find_last
+return ds_map_find_last(argument[0]);
+#define __bgml_function_execute_ds_map_write
+return ds_map_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_map_read();
+    case 1:
+        return ds_map_read(argument[0]);
+    case 2:
+        return ds_map_read(argument[0],argument[1]);
+    case 3:
+        return ds_map_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_map_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_map_secure_save
+return ds_map_secure_save(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_secure_load
+return ds_map_secure_load(argument[0]);
+#define __bgml_function_execute_ds_map_secure_load_buffer
+return ds_map_secure_load_buffer(argument[0]);
+#define __bgml_function_execute_ds_map_secure_save_buffer
+return ds_map_secure_save_buffer(argument[0],argument[1]);
+#define __bgml_function_execute_ds_map_set
+return ds_map_set(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_priority_create
+return ds_priority_create();
+#define __bgml_function_execute_ds_priority_destroy
+return ds_priority_destroy(argument[0]);
+#define __bgml_function_execute_ds_priority_clear
+return ds_priority_clear(argument[0]);
+#define __bgml_function_execute_ds_priority_copy
+return ds_priority_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_priority_size
+return ds_priority_size(argument[0]);
+#define __bgml_function_execute_ds_priority_empty
+return ds_priority_empty(argument[0]);
+#define __bgml_function_execute_ds_priority_add
+return ds_priority_add(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_priority_change_priority
+return ds_priority_change_priority(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_priority_find_priority
+return ds_priority_find_priority(argument[0],argument[1]);
+#define __bgml_function_execute_ds_priority_delete_value
+return ds_priority_delete_value(argument[0],argument[1]);
+#define __bgml_function_execute_ds_priority_delete_min
+return ds_priority_delete_min(argument[0]);
+#define __bgml_function_execute_ds_priority_find_min
+return ds_priority_find_min(argument[0]);
+#define __bgml_function_execute_ds_priority_delete_max
+return ds_priority_delete_max(argument[0]);
+#define __bgml_function_execute_ds_priority_find_max
+return ds_priority_find_max(argument[0]);
+#define __bgml_function_execute_ds_priority_write
+return ds_priority_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_priority_read();
+    case 1:
+        return ds_priority_read(argument[0]);
+    case 2:
+        return ds_priority_read(argument[0],argument[1]);
+    case 3:
+        return ds_priority_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_priority_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_grid_create
+return ds_grid_create(argument[0],argument[1]);
+#define __bgml_function_execute_ds_grid_destroy
+return ds_grid_destroy(argument[0]);
+#define __bgml_function_execute_ds_grid_copy
+return ds_grid_copy(argument[0],argument[1]);
+#define __bgml_function_execute_ds_grid_resize
+return ds_grid_resize(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_grid_width
+return ds_grid_width(argument[0]);
+#define __bgml_function_execute_ds_grid_height
+return ds_grid_height(argument[0]);
+#define __bgml_function_execute_ds_grid_clear
+return ds_grid_clear(argument[0],argument[1]);
+#define __bgml_function_execute_ds_grid_set
+return ds_grid_set(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_add
+return ds_grid_add(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_multiply
+return ds_grid_multiply(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_set_region
+return ds_grid_set_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_add_region
+return ds_grid_add_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_multiply_region
+return ds_grid_multiply_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_set_disk
+return ds_grid_set_disk(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_add_disk
+return ds_grid_add_disk(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_multiply_disk
+return ds_grid_multiply_disk(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_set_grid_region
+return ds_grid_set_grid_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_ds_grid_add_grid_region
+return ds_grid_add_grid_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_ds_grid_multiply_grid_region
+return ds_grid_multiply_grid_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_ds_grid_get
+return ds_grid_get(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ds_grid_get_sum
+return ds_grid_get_sum(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_get_max
+return ds_grid_get_max(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_get_min
+return ds_grid_get_min(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_get_mean
+return ds_grid_get_mean(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_get_disk_sum
+return ds_grid_get_disk_sum(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_get_disk_min
+return ds_grid_get_disk_min(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_get_disk_max
+return ds_grid_get_disk_max(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_get_disk_mean
+return ds_grid_get_disk_mean(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_ds_grid_value_exists
+return ds_grid_value_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_value_x
+return ds_grid_value_x(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_value_y
+return ds_grid_value_y(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_ds_grid_value_disk_exists
+return ds_grid_value_disk_exists(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_value_disk_x
+return ds_grid_value_disk_x(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_value_disk_y
+return ds_grid_value_disk_y(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_ds_grid_shuffle
+return ds_grid_shuffle(argument[0]);
+#define __bgml_function_execute_ds_grid_write
+return ds_grid_write(argument[0]);
+switch(argument_count) {
+    case 0:
+        return ds_grid_read();
+    case 1:
+        return ds_grid_read(argument[0]);
+    case 2:
+        return ds_grid_read(argument[0],argument[1]);
+    case 3:
+        return ds_grid_read(argument[0],argument[1],argument[2]);
+    case 4:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return ds_grid_read(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_ds_grid_sort
+return ds_grid_sort(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_effect_create_below
+return effect_create_below(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_effect_create_above
+return effect_create_above(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_effect_clear
+return effect_clear();
+#define __bgml_function_execute_part_type_create
+return part_type_create();
+#define __bgml_function_execute_part_type_destroy
+return part_type_destroy(argument[0]);
+#define __bgml_function_execute_part_type_exists
+return part_type_exists(argument[0]);
+#define __bgml_function_execute_part_type_clear
+return part_type_clear(argument[0]);
+#define __bgml_function_execute_part_type_shape
+return part_type_shape(argument[0],argument[1]);
+#define __bgml_function_execute_part_type_sprite
+return part_type_sprite(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_part_type_size
+return part_type_size(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_part_type_scale
+return part_type_scale(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_orientation
+return part_type_orientation(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_part_type_life
+return part_type_life(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_step
+return part_type_step(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_death
+return part_type_death(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_speed
+return part_type_speed(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_part_type_direction
+return part_type_direction(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_part_type_gravity
+return part_type_gravity(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_colour1
+return part_type_colour1(argument[0],argument[1]);
+#define __bgml_function_execute_part_type_colour2
+return part_type_colour2(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_colour3
+return part_type_colour3(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_part_type_colour_mix
+return part_type_colour_mix(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_colour_rgb
+return part_type_colour_rgb(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_part_type_colour_hsv
+return part_type_colour_hsv(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_part_type_color1
+return part_type_color1(argument[0],argument[1]);
+#define __bgml_function_execute_part_type_color2
+return part_type_color2(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_color3
+return part_type_color3(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_part_type_color_mix
+return part_type_color_mix(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_color_rgb
+return part_type_color_rgb(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_part_type_color_hsv
+return part_type_color_hsv(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_part_type_alpha1
+return part_type_alpha1(argument[0],argument[1]);
+#define __bgml_function_execute_part_type_alpha2
+return part_type_alpha2(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_type_alpha3
+return part_type_alpha3(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_part_type_blend
+return part_type_blend(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_create
+return part_system_create();
+#define __bgml_function_execute_part_system_create_layer
+return part_system_create_layer(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_destroy
+return part_system_destroy(argument[0]);
+#define __bgml_function_execute_part_system_exists
+return part_system_exists(argument[0]);
+#define __bgml_function_execute_part_system_clear
+return part_system_clear(argument[0]);
+#define __bgml_function_execute_part_system_draw_order
+return part_system_draw_order(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_depth
+return part_system_depth(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_position
+return part_system_position(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_part_system_automatic_update
+return part_system_automatic_update(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_automatic_draw
+return part_system_automatic_draw(argument[0],argument[1]);
+#define __bgml_function_execute_part_system_update
+return part_system_update(argument[0]);
+#define __bgml_function_execute_part_system_drawit
+return part_system_drawit(argument[0]);
+#define __bgml_function_execute_part_system_get_layer
+return part_system_get_layer(argument[0]);
+#define __bgml_function_execute_part_system_layer
+return part_system_layer(argument[0],argument[1]);
+#define __bgml_function_execute_part_particles_create
+return part_particles_create(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_part_particles_create_colour
+return part_particles_create_colour(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_part_particles_create_color
+return part_particles_create_color(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_part_particles_clear
+return part_particles_clear(argument[0]);
+#define __bgml_function_execute_part_particles_count
+return part_particles_count(argument[0]);
+#define __bgml_function_execute_part_emitter_create
+return part_emitter_create(argument[0]);
+#define __bgml_function_execute_part_emitter_destroy
+return part_emitter_destroy(argument[0],argument[1]);
+#define __bgml_function_execute_part_emitter_destroy_all
+return part_emitter_destroy_all(argument[0]);
+#define __bgml_function_execute_part_emitter_exists
+return part_emitter_exists(argument[0],argument[1]);
+#define __bgml_function_execute_part_emitter_clear
+return part_emitter_clear(argument[0],argument[1]);
+#define __bgml_function_execute_part_emitter_region
+return part_emitter_region(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_part_emitter_burst
+return part_emitter_burst(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_part_emitter_stream
+return part_emitter_stream(argument[0],argument[1],argument[2],argument[3]);
+switch(argument_count) {
+    case 0:
+        return external_call();
+    case 1:
+        return external_call(argument[0]);
+    case 2:
+        return external_call(argument[0],argument[1]);
+    case 3:
+        return external_call(argument[0],argument[1],argument[2]);
+    case 4:
+        return external_call(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+switch(argument_count) {
+    case 0:
+        return external_define();
+    case 1:
+        return external_define(argument[0]);
+    case 2:
+        return external_define(argument[0],argument[1]);
+    case 3:
+        return external_define(argument[0],argument[1],argument[2]);
+    case 4:
+        return external_define(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return external_define(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_external_free
+return external_free(argument[0]);
+#define __bgml_function_execute_window_handle
+return window_handle();
+#define __bgml_function_execute_window_device
+return window_device();
+#define __bgml_function_execute_matrix_get
+return matrix_get(argument[0]);
+#define __bgml_function_execute_matrix_set
+return matrix_set(argument[0],argument[1]);
+#define __bgml_function_execute_matrix_build_identity
+return matrix_build_identity();
+#define __bgml_function_execute_matrix_build
+return matrix_build(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_matrix_build_lookat
+return matrix_build_lookat(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_matrix_build_projection_ortho
+return matrix_build_projection_ortho(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_matrix_build_projection_perspective
+return matrix_build_projection_perspective(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_matrix_build_projection_perspective_fov
+return matrix_build_projection_perspective_fov(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_matrix_multiply
+return matrix_multiply(argument[0],argument[1]);
+#define __bgml_function_execute_matrix_transform_vertex
+return matrix_transform_vertex(argument[0],argument[1],argument[2],argument[3]);
+switch(argument_count) {
+    case 0:
+        return matrix_stack_push();
+    case 1:
+        return matrix_stack_push(argument[0]);
+    case 2:
+        return matrix_stack_push(argument[0],argument[1]);
+    case 3:
+        return matrix_stack_push(argument[0],argument[1],argument[2]);
+    case 4:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return matrix_stack_push(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_matrix_stack_pop
+return matrix_stack_pop();
+#define __bgml_function_execute_matrix_stack_set
+return matrix_stack_set(argument[0]);
+#define __bgml_function_execute_matrix_stack_clear
+return matrix_stack_clear();
+#define __bgml_function_execute_matrix_stack_top
+return matrix_stack_top();
+#define __bgml_function_execute_matrix_stack_is_empty
+return matrix_stack_is_empty();
+#define __bgml_function_execute_browser_input_capture
+return browser_input_capture(argument[0]);
+#define __bgml_function_execute_os_get_config
+return os_get_config();
+#define __bgml_function_execute_os_get_info
+return os_get_info();
+#define __bgml_function_execute_os_get_language
+return os_get_language();
+#define __bgml_function_execute_os_get_region
+return os_get_region();
+#define __bgml_function_execute_os_lock_orientation
+return os_lock_orientation(argument[0]);
+#define __bgml_function_execute_display_get_dpi_x
+return display_get_dpi_x();
+#define __bgml_function_execute_display_get_dpi_y
+return display_get_dpi_y();
+#define __bgml_function_execute_display_set_gui_size
+return display_set_gui_size(argument[0],argument[1]);
+switch(argument_count) {
+    case 0:
+        return display_set_gui_maximise();
+    case 1:
+        return display_set_gui_maximise(argument[0]);
+    case 2:
+        return display_set_gui_maximise(argument[0],argument[1]);
+    case 3:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2]);
+    case 4:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+switch(argument_count) {
+    case 0:
+        return display_set_gui_maximize();
+    case 1:
+        return display_set_gui_maximize(argument[0]);
+    case 2:
+        return display_set_gui_maximize(argument[0],argument[1]);
+    case 3:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2]);
+    case 4:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return display_set_gui_maximize(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_device_mouse_dbclick_enable
+return device_mouse_dbclick_enable(argument[0]);
+#define __bgml_function_execute_display_set_timing_method
+return display_set_timing_method(argument[0]);
+#define __bgml_function_execute_display_get_timing_method
+return display_get_timing_method();
+#define __bgml_function_execute_display_set_sleep_margin
+return display_set_sleep_margin(argument[0]);
+#define __bgml_function_execute_display_get_sleep_margin
+return display_get_sleep_margin();
+#define __bgml_function_execute_virtual_key_add
+return virtual_key_add(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_virtual_key_hide
+return virtual_key_hide(argument[0]);
+#define __bgml_function_execute_virtual_key_delete
+return virtual_key_delete(argument[0]);
+#define __bgml_function_execute_virtual_key_show
+return virtual_key_show(argument[0]);
+#define __bgml_function_execute_draw_enable_drawevent
+return draw_enable_drawevent(argument[0]);
+#define __bgml_function_execute_draw_enable_swf_aa
+return draw_enable_swf_aa(argument[0]);
+#define __bgml_function_execute_draw_set_swf_aa_level
+return draw_set_swf_aa_level(argument[0]);
+#define __bgml_function_execute_draw_get_swf_aa_level
+return draw_get_swf_aa_level();
+#define __bgml_function_execute_draw_texture_flush
+return draw_texture_flush();
+#define __bgml_function_execute_draw_flush
+return draw_flush();
+#define __bgml_function_execute_gpu_set_blendenable
+return gpu_set_blendenable(argument[0]);
+#define __bgml_function_execute_gpu_set_ztestenable
+return gpu_set_ztestenable(argument[0]);
+#define __bgml_function_execute_gpu_set_zfunc
+return gpu_set_zfunc(argument[0]);
+#define __bgml_function_execute_gpu_set_zwriteenable
+return gpu_set_zwriteenable(argument[0]);
+#define __bgml_function_execute_gpu_set_fog
+return gpu_set_fog(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_gpu_set_cullmode
+return gpu_set_cullmode(argument[0]);
+#define __bgml_function_execute_gpu_set_blendmode
+return gpu_set_blendmode(argument[0]);
+#define __bgml_function_execute_gpu_set_blendmode_ext
+return gpu_set_blendmode_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_blendmode_ext_sepalpha
+return gpu_set_blendmode_ext_sepalpha(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_gpu_set_colorwriteenable
+return gpu_set_colorwriteenable(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_gpu_set_colourwriteenable
+return gpu_set_colourwriteenable(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_gpu_set_alphatestenable
+return gpu_set_alphatestenable(argument[0]);
+#define __bgml_function_execute_gpu_set_alphatestref
+return gpu_set_alphatestref(argument[0]);
+#define __bgml_function_execute_gpu_set_alphatestfunc
+return gpu_set_alphatestfunc(argument[0]);
+#define __bgml_function_execute_gpu_set_texfilter
+return gpu_set_texfilter(argument[0]);
+#define __bgml_function_execute_gpu_set_texfilter_ext
+return gpu_set_texfilter_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_texrepeat
+return gpu_set_texrepeat(argument[0]);
+#define __bgml_function_execute_gpu_set_texrepeat_ext
+return gpu_set_texrepeat_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_filter
+return gpu_set_tex_filter(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_filter_ext
+return gpu_set_tex_filter_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_repeat
+return gpu_set_tex_repeat(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_repeat_ext
+return gpu_set_tex_repeat_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_mip_filter
+return gpu_set_tex_mip_filter(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_mip_filter_ext
+return gpu_set_tex_mip_filter_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_mip_bias
+return gpu_set_tex_mip_bias(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_mip_bias_ext
+return gpu_set_tex_mip_bias_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_min_mip
+return gpu_set_tex_min_mip(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_min_mip_ext
+return gpu_set_tex_min_mip_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_max_mip
+return gpu_set_tex_max_mip(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_max_mip_ext
+return gpu_set_tex_max_mip_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_max_aniso
+return gpu_set_tex_max_aniso(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_max_aniso_ext
+return gpu_set_tex_max_aniso_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_set_tex_mip_enable
+return gpu_set_tex_mip_enable(argument[0]);
+#define __bgml_function_execute_gpu_set_tex_mip_enable_ext
+return gpu_set_tex_mip_enable_ext(argument[0],argument[1]);
+#define __bgml_function_execute_gpu_get_blendenable
+return gpu_get_blendenable();
+#define __bgml_function_execute_gpu_get_ztestenable
+return gpu_get_ztestenable();
+#define __bgml_function_execute_gpu_get_zfunc
+return gpu_get_zfunc();
+#define __bgml_function_execute_gpu_get_zwriteenable
+return gpu_get_zwriteenable();
+#define __bgml_function_execute_gpu_get_fog
+return gpu_get_fog();
+#define __bgml_function_execute_gpu_get_cullmode
+return gpu_get_cullmode();
+#define __bgml_function_execute_gpu_get_blendmode
+return gpu_get_blendmode();
+#define __bgml_function_execute_gpu_get_blendmode_ext
+return gpu_get_blendmode_ext();
+#define __bgml_function_execute_gpu_get_blendmode_ext_sepalpha
+return gpu_get_blendmode_ext_sepalpha();
+#define __bgml_function_execute_gpu_get_blendmode_src
+return gpu_get_blendmode_src();
+#define __bgml_function_execute_gpu_get_blendmode_dest
+return gpu_get_blendmode_dest();
+#define __bgml_function_execute_gpu_get_blendmode_srcalpha
+return gpu_get_blendmode_srcalpha();
+#define __bgml_function_execute_gpu_get_blendmode_destalpha
+return gpu_get_blendmode_destalpha();
+#define __bgml_function_execute_gpu_get_colorwriteenable
+return gpu_get_colorwriteenable();
+#define __bgml_function_execute_gpu_get_colourwriteenable
+return gpu_get_colourwriteenable();
+#define __bgml_function_execute_gpu_get_alphatestenable
+return gpu_get_alphatestenable();
+#define __bgml_function_execute_gpu_get_alphatestref
+return gpu_get_alphatestref();
+#define __bgml_function_execute_gpu_get_alphatestfunc
+return gpu_get_alphatestfunc();
+#define __bgml_function_execute_gpu_get_texfilter
+return gpu_get_texfilter();
+#define __bgml_function_execute_gpu_get_texfilter_ext
+return gpu_get_texfilter_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_texrepeat
+return gpu_get_texrepeat();
+#define __bgml_function_execute_gpu_get_texrepeat_ext
+return gpu_get_texrepeat_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_filter
+return gpu_get_tex_filter();
+#define __bgml_function_execute_gpu_get_tex_filter_ext
+return gpu_get_tex_filter_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_repeat
+return gpu_get_tex_repeat();
+#define __bgml_function_execute_gpu_get_tex_repeat_ext
+return gpu_get_tex_repeat_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_mip_filter
+return gpu_get_tex_mip_filter();
+#define __bgml_function_execute_gpu_get_tex_mip_filter_ext
+return gpu_get_tex_mip_filter_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_mip_bias
+return gpu_get_tex_mip_bias();
+#define __bgml_function_execute_gpu_get_tex_mip_bias_ext
+return gpu_get_tex_mip_bias_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_min_mip
+return gpu_get_tex_min_mip();
+#define __bgml_function_execute_gpu_get_tex_min_mip_ext
+return gpu_get_tex_min_mip_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_max_mip
+return gpu_get_tex_max_mip();
+#define __bgml_function_execute_gpu_get_tex_max_mip_ext
+return gpu_get_tex_max_mip_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_max_aniso
+return gpu_get_tex_max_aniso();
+#define __bgml_function_execute_gpu_get_tex_max_aniso_ext
+return gpu_get_tex_max_aniso_ext(argument[0]);
+#define __bgml_function_execute_gpu_get_tex_mip_enable
+return gpu_get_tex_mip_enable();
+#define __bgml_function_execute_gpu_get_tex_mip_enable_ext
+return gpu_get_tex_mip_enable_ext(argument[0]);
+#define __bgml_function_execute_gpu_push_state
+return gpu_push_state();
+#define __bgml_function_execute_gpu_pop_state
+return gpu_pop_state();
+#define __bgml_function_execute_gpu_get_state
+return gpu_get_state();
+#define __bgml_function_execute_gpu_set_state
+return gpu_set_state(argument[0]);
+#define __bgml_function_execute_draw_light_define_ambient
+return draw_light_define_ambient(argument[0]);
+#define __bgml_function_execute_draw_light_define_direction
+return draw_light_define_direction(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_draw_light_define_point
+return draw_light_define_point(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_draw_light_enable
+return draw_light_enable(argument[0],argument[1]);
+#define __bgml_function_execute_draw_set_lighting
+return draw_set_lighting(argument[0]);
+#define __bgml_function_execute_draw_light_get_ambient
+return draw_light_get_ambient();
+#define __bgml_function_execute_draw_light_get
+return draw_light_get(argument[0]);
+#define __bgml_function_execute_draw_get_lighting
+return draw_get_lighting();
+#define __bgml_function_execute_shop_leave_rating
+return shop_leave_rating(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_url_get_domain
+return url_get_domain();
+#define __bgml_function_execute_url_open
+return url_open(argument[0]);
+#define __bgml_function_execute_url_open_ext
+return url_open_ext(argument[0],argument[1]);
+#define __bgml_function_execute_url_open_full
+return url_open_full(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_get_timer
+return get_timer();
+#define __bgml_function_execute_achievement_login
+return achievement_login();
+#define __bgml_function_execute_achievement_logout
+return achievement_logout();
+#define __bgml_function_execute_achievement_post
+return achievement_post(argument[0],argument[1]);
+#define __bgml_function_execute_achievement_increment
+return achievement_increment(argument[0],argument[1]);
+#define __bgml_function_execute_achievement_post_score
+return achievement_post_score(argument[0],argument[1]);
+#define __bgml_function_execute_achievement_available
+return achievement_available();
+#define __bgml_function_execute_achievement_show_achievements
+return achievement_show_achievements();
+#define __bgml_function_execute_achievement_show_leaderboards
+return achievement_show_leaderboards();
+#define __bgml_function_execute_achievement_load_friends
+return achievement_load_friends();
+#define __bgml_function_execute_achievement_load_leaderboard
+return achievement_load_leaderboard(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_achievement_send_challenge
+return achievement_send_challenge(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_achievement_load_progress
+return achievement_load_progress();
+#define __bgml_function_execute_achievement_reset
+return achievement_reset();
+#define __bgml_function_execute_achievement_login_status
+return achievement_login_status();
+#define __bgml_function_execute_achievement_get_pic
+return achievement_get_pic(argument[0]);
+#define __bgml_function_execute_achievement_show_challenge_notifications
+return achievement_show_challenge_notifications(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_achievement_get_challenges
+return achievement_get_challenges();
+#define __bgml_function_execute_achievement_event
+return achievement_event(argument[0]);
+#define __bgml_function_execute_achievement_show
+return achievement_show(argument[0],argument[1]);
+#define __bgml_function_execute_achievement_get_info
+return achievement_get_info(argument[0]);
+#define __bgml_function_execute_cloud_file_save
+return cloud_file_save(argument[0],argument[1]);
+#define __bgml_function_execute_cloud_string_save
+return cloud_string_save(argument[0],argument[1]);
+#define __bgml_function_execute_cloud_synchronise
+return cloud_synchronise();
+#define __bgml_function_execute_ads_enable
+return ads_enable(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ads_disable
+return ads_disable(argument[0]);
+#define __bgml_function_execute_ads_setup
+return ads_setup(argument[0],argument[1]);
+#define __bgml_function_execute_ads_engagement_launch
+return ads_engagement_launch();
+#define __bgml_function_execute_ads_engagement_available
+return ads_engagement_available();
+#define __bgml_function_execute_ads_engagement_active
+return ads_engagement_active();
+#define __bgml_function_execute_ads_event
+return ads_event(argument[0]);
+#define __bgml_function_execute_ads_event_preload
+return ads_event_preload(argument[0]);
+#define __bgml_function_execute_ads_set_reward_callback
+return ads_set_reward_callback(argument[0]);
+#define __bgml_function_execute_ads_get_display_height
+return ads_get_display_height(argument[0]);
+#define __bgml_function_execute_ads_get_display_width
+return ads_get_display_width(argument[0]);
+#define __bgml_function_execute_ads_move
+return ads_move(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_ads_interstitial_available
+return ads_interstitial_available();
+#define __bgml_function_execute_ads_interstitial_display
+return ads_interstitial_display();
+#define __bgml_function_execute_device_get_tilt_x
+return device_get_tilt_x();
+#define __bgml_function_execute_device_get_tilt_y
+return device_get_tilt_y();
+#define __bgml_function_execute_device_get_tilt_z
+return device_get_tilt_z();
+#define __bgml_function_execute_device_is_keypad_open
+return device_is_keypad_open();
+#define __bgml_function_execute_device_mouse_check_button
+return device_mouse_check_button(argument[0],argument[1]);
+#define __bgml_function_execute_device_mouse_check_button_pressed
+return device_mouse_check_button_pressed(argument[0],argument[1]);
+#define __bgml_function_execute_device_mouse_check_button_released
+return device_mouse_check_button_released(argument[0],argument[1]);
+#define __bgml_function_execute_device_mouse_x
+return device_mouse_x(argument[0]);
+#define __bgml_function_execute_device_mouse_y
+return device_mouse_y(argument[0]);
+#define __bgml_function_execute_device_mouse_raw_x
+return device_mouse_raw_x(argument[0]);
+#define __bgml_function_execute_device_mouse_raw_y
+return device_mouse_raw_y(argument[0]);
+#define __bgml_function_execute_device_mouse_x_to_gui
+return device_mouse_x_to_gui(argument[0]);
+#define __bgml_function_execute_device_mouse_y_to_gui
+return device_mouse_y_to_gui(argument[0]);
+#define __bgml_function_execute_iap_activate
+return iap_activate(argument[0]);
+#define __bgml_function_execute_iap_status
+return iap_status();
+#define __bgml_function_execute_iap_enumerate_products
+return iap_enumerate_products(argument[0]);
+#define __bgml_function_execute_iap_restore_all
+return iap_restore_all();
+#define __bgml_function_execute_iap_acquire
+return iap_acquire(argument[0],argument[1]);
+#define __bgml_function_execute_iap_consume
+return iap_consume(argument[0]);
+#define __bgml_function_execute_iap_product_details
+return iap_product_details(argument[0],argument[1]);
+#define __bgml_function_execute_iap_purchase_details
+return iap_purchase_details(argument[0],argument[1]);
+#define __bgml_function_execute_facebook_init
+return facebook_init();
+#define __bgml_function_execute_facebook_login
+return facebook_login(argument[0],argument[1]);
+#define __bgml_function_execute_facebook_status
+return facebook_status();
+#define __bgml_function_execute_facebook_graph_request
+return facebook_graph_request(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_facebook_dialog
+return facebook_dialog(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_facebook_logout
+return facebook_logout();
+#define __bgml_function_execute_facebook_launch_offerwall
+return facebook_launch_offerwall(argument[0]);
+#define __bgml_function_execute_facebook_post_message
+return facebook_post_message(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_facebook_send_invite
+return facebook_send_invite(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_facebook_user_id
+return facebook_user_id();
+#define __bgml_function_execute_facebook_accesstoken
+return facebook_accesstoken();
+#define __bgml_function_execute_facebook_check_permission
+return facebook_check_permission(argument[0]);
+#define __bgml_function_execute_facebook_request_read_permissions
+return facebook_request_read_permissions(argument[0]);
+#define __bgml_function_execute_facebook_request_publish_permissions
+return facebook_request_publish_permissions(argument[0]);
+#define __bgml_function_execute_gamepad_is_supported
+return gamepad_is_supported();
+#define __bgml_function_execute_gamepad_get_device_count
+return gamepad_get_device_count();
+#define __bgml_function_execute_gamepad_is_connected
+return gamepad_is_connected(argument[0]);
+#define __bgml_function_execute_gamepad_get_description
+return gamepad_get_description(argument[0]);
+#define __bgml_function_execute_gamepad_get_button_threshold
+return gamepad_get_button_threshold(argument[0]);
+#define __bgml_function_execute_gamepad_set_button_threshold
+return gamepad_set_button_threshold(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_get_axis_deadzone
+return gamepad_get_axis_deadzone(argument[0]);
+#define __bgml_function_execute_gamepad_set_axis_deadzone
+return gamepad_set_axis_deadzone(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_button_count
+return gamepad_button_count(argument[0]);
+#define __bgml_function_execute_gamepad_button_check
+return gamepad_button_check(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_button_check_pressed
+return gamepad_button_check_pressed(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_button_check_released
+return gamepad_button_check_released(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_button_value
+return gamepad_button_value(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_axis_count
+return gamepad_axis_count(argument[0]);
+#define __bgml_function_execute_gamepad_axis_value
+return gamepad_axis_value(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_set_vibration
+return gamepad_set_vibration(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_gamepad_set_colour
+return gamepad_set_colour(argument[0],argument[1]);
+#define __bgml_function_execute_gamepad_set_color
+return gamepad_set_color(argument[0],argument[1]);
+#define __bgml_function_execute_os_is_paused
+return os_is_paused();
+#define __bgml_function_execute_window_has_focus
+return window_has_focus();
+#define __bgml_function_execute_code_is_compiled
+return code_is_compiled();
+#define __bgml_function_execute_http_get
+return http_get(argument[0]);
+#define __bgml_function_execute_http_get_file
+return http_get_file(argument[0],argument[1]);
+#define __bgml_function_execute_http_post_string
+return http_post_string(argument[0],argument[1]);
+#define __bgml_function_execute_http_request
+return http_request(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_json_encode
+return json_encode(argument[0]);
+#define __bgml_function_execute_json_decode
+return json_decode(argument[0]);
+#define __bgml_function_execute_zip_unzip
+return zip_unzip(argument[0],argument[1]);
+#define __bgml_function_execute_load_csv
+return load_csv(argument[0]);
+#define __bgml_function_execute_base64_encode
+return base64_encode(argument[0]);
+#define __bgml_function_execute_base64_decode
+return base64_decode(argument[0]);
+#define __bgml_function_execute_md5_string_unicode
+return md5_string_unicode(argument[0]);
+#define __bgml_function_execute_md5_string_utf8
+return md5_string_utf8(argument[0]);
+#define __bgml_function_execute_md5_file
+return md5_file(argument[0]);
+#define __bgml_function_execute_os_is_network_connected
+return os_is_network_connected();
+#define __bgml_function_execute_sha1_string_unicode
+return sha1_string_unicode(argument[0]);
+#define __bgml_function_execute_sha1_string_utf8
+return sha1_string_utf8(argument[0]);
+#define __bgml_function_execute_sha1_file
+return sha1_file(argument[0]);
+#define __bgml_function_execute_os_powersave_enable
+return os_powersave_enable(argument[0]);
+#define __bgml_function_execute_analytics_event
+return analytics_event(argument[0]);
+#define __bgml_function_execute_analytics_event_ext
+return analytics_event_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_livetile_tile_notification
+return win8_livetile_tile_notification(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_livetile_tile_clear
+return win8_livetile_tile_clear();
+#define __bgml_function_execute_win8_livetile_badge_notification
+return win8_livetile_badge_notification(argument[0]);
+#define __bgml_function_execute_win8_livetile_badge_clear
+return win8_livetile_badge_clear();
+#define __bgml_function_execute_win8_livetile_queue_enable
+return win8_livetile_queue_enable(argument[0]);
+#define __bgml_function_execute_win8_secondarytile_pin
+return win8_secondarytile_pin(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_win8_secondarytile_badge_notification
+return win8_secondarytile_badge_notification(argument[0],argument[1]);
+#define __bgml_function_execute_win8_secondarytile_delete
+return win8_secondarytile_delete(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_begin
+return win8_livetile_notification_begin(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_secondary_begin
+return win8_livetile_notification_secondary_begin(argument[0],argument[1]);
+#define __bgml_function_execute_win8_livetile_notification_expiry
+return win8_livetile_notification_expiry(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_tag
+return win8_livetile_notification_tag(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_text_add
+return win8_livetile_notification_text_add(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_image_add
+return win8_livetile_notification_image_add(argument[0]);
+#define __bgml_function_execute_win8_livetile_notification_end
+return win8_livetile_notification_end();
+#define __bgml_function_execute_win8_appbar_enable
+return win8_appbar_enable(argument[0]);
+#define __bgml_function_execute_win8_appbar_add_element
+return win8_appbar_add_element(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_win8_appbar_remove_element
+return win8_appbar_remove_element(argument[0]);
+#define __bgml_function_execute_win8_settingscharm_add_entry
+return win8_settingscharm_add_entry(argument[0],argument[1]);
+#define __bgml_function_execute_win8_settingscharm_add_html_entry
+return win8_settingscharm_add_html_entry(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_win8_settingscharm_add_xaml_entry
+return win8_settingscharm_add_xaml_entry(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_win8_settingscharm_set_xaml_property
+return win8_settingscharm_set_xaml_property(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_settingscharm_get_xaml_property
+return win8_settingscharm_get_xaml_property(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_win8_settingscharm_remove_entry
+return win8_settingscharm_remove_entry(argument[0]);
+#define __bgml_function_execute_win8_share_image
+return win8_share_image(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_share_screenshot
+return win8_share_screenshot(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_win8_share_file
+return win8_share_file(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_share_url
+return win8_share_url(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_share_text
+return win8_share_text(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_win8_search_enable
+return win8_search_enable(argument[0]);
+#define __bgml_function_execute_win8_search_disable
+return win8_search_disable();
+#define __bgml_function_execute_win8_search_add_suggestions
+return win8_search_add_suggestions(argument[0]);
+#define __bgml_function_execute_win8_device_touchscreen_available
+return win8_device_touchscreen_available();
+#define __bgml_function_execute_win8_license_initialize_sandbox
+return win8_license_initialize_sandbox(argument[0]);
+#define __bgml_function_execute_win8_license_trial_version
+return win8_license_trial_version();
+#define __bgml_function_execute_winphone_license_trial_version
+return winphone_license_trial_version();
+#define __bgml_function_execute_winphone_tile_title
+return winphone_tile_title(argument[0]);
+#define __bgml_function_execute_winphone_tile_count
+return winphone_tile_count(argument[0]);
+#define __bgml_function_execute_winphone_tile_back_title
+return winphone_tile_back_title(argument[0]);
+#define __bgml_function_execute_winphone_tile_back_content
+return winphone_tile_back_content(argument[0]);
+#define __bgml_function_execute_winphone_tile_back_content_wide
+return winphone_tile_back_content_wide(argument[0]);
+#define __bgml_function_execute_winphone_tile_front_image
+return winphone_tile_front_image(argument[0]);
+#define __bgml_function_execute_winphone_tile_front_image_small
+return winphone_tile_front_image_small(argument[0]);
+#define __bgml_function_execute_winphone_tile_front_image_wide
+return winphone_tile_front_image_wide(argument[0]);
+#define __bgml_function_execute_winphone_tile_back_image
+return winphone_tile_back_image(argument[0]);
+#define __bgml_function_execute_winphone_tile_back_image_wide
+return winphone_tile_back_image_wide(argument[0]);
+#define __bgml_function_execute_winphone_tile_background_colour
+return winphone_tile_background_colour(argument[0]);
+#define __bgml_function_execute_winphone_tile_background_color
+return winphone_tile_background_color(argument[0]);
+#define __bgml_function_execute_winphone_tile_icon_image
+return winphone_tile_icon_image(argument[0]);
+#define __bgml_function_execute_winphone_tile_small_icon_image
+return winphone_tile_small_icon_image(argument[0]);
+#define __bgml_function_execute_winphone_tile_wide_content
+return winphone_tile_wide_content(argument[0],argument[1]);
+#define __bgml_function_execute_winphone_tile_cycle_images
+return winphone_tile_cycle_images(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_winphone_tile_small_background_image
+return winphone_tile_small_background_image(argument[0]);
+#define __bgml_function_execute_physics_world_create
+return physics_world_create(argument[0]);
+#define __bgml_function_execute_physics_world_gravity
+return physics_world_gravity(argument[0],argument[1]);
+#define __bgml_function_execute_physics_world_update_speed
+return physics_world_update_speed(argument[0]);
+#define __bgml_function_execute_physics_world_update_iterations
+return physics_world_update_iterations(argument[0]);
+#define __bgml_function_execute_physics_world_draw_debug
+return physics_world_draw_debug(argument[0]);
+#define __bgml_function_execute_physics_pause_enable
+return physics_pause_enable(argument[0]);
+#define __bgml_function_execute_physics_fixture_create
+return physics_fixture_create();
+#define __bgml_function_execute_physics_fixture_set_kinematic
+return physics_fixture_set_kinematic(argument[0]);
+#define __bgml_function_execute_physics_fixture_set_density
+return physics_fixture_set_density(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_awake
+return physics_fixture_set_awake(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_restitution
+return physics_fixture_set_restitution(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_friction
+return physics_fixture_set_friction(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_collision_group
+return physics_fixture_set_collision_group(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_sensor
+return physics_fixture_set_sensor(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_linear_damping
+return physics_fixture_set_linear_damping(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_angular_damping
+return physics_fixture_set_angular_damping(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_circle_shape
+return physics_fixture_set_circle_shape(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_set_box_shape
+return physics_fixture_set_box_shape(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_fixture_set_edge_shape
+return physics_fixture_set_edge_shape(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_physics_fixture_set_polygon_shape
+return physics_fixture_set_polygon_shape(argument[0]);
+#define __bgml_function_execute_physics_fixture_set_chain_shape
+return physics_fixture_set_chain_shape(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_add_point
+return physics_fixture_add_point(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_fixture_bind
+return physics_fixture_bind(argument[0],argument[1]);
+#define __bgml_function_execute_physics_fixture_bind_ext
+return physics_fixture_bind_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_fixture_delete
+return physics_fixture_delete(argument[0]);
+#define __bgml_function_execute_physics_apply_force
+return physics_apply_force(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_apply_impulse
+return physics_apply_impulse(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_apply_angular_impulse
+return physics_apply_angular_impulse(argument[0]);
+#define __bgml_function_execute_physics_apply_local_force
+return physics_apply_local_force(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_apply_local_impulse
+return physics_apply_local_impulse(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_apply_torque
+return physics_apply_torque(argument[0]);
+#define __bgml_function_execute_physics_mass_properties
+return physics_mass_properties(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_draw_debug
+return physics_draw_debug();
+#define __bgml_function_execute_physics_test_overlap
+return physics_test_overlap(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_remove_fixture
+return physics_remove_fixture(argument[0],argument[1]);
+#define __bgml_function_execute_physics_set_friction
+return physics_set_friction(argument[0],argument[1]);
+#define __bgml_function_execute_physics_set_density
+return physics_set_density(argument[0],argument[1]);
+#define __bgml_function_execute_physics_set_restitution
+return physics_set_restitution(argument[0],argument[1]);
+#define __bgml_function_execute_physics_get_friction
+return physics_get_friction(argument[0]);
+#define __bgml_function_execute_physics_get_density
+return physics_get_density(argument[0]);
+#define __bgml_function_execute_physics_get_restitution
+return physics_get_restitution(argument[0]);
+#define __bgml_function_execute_physics_joint_distance_create
+return physics_joint_distance_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_physics_joint_rope_create
+return physics_joint_rope_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_physics_joint_revolute_create
+return physics_joint_revolute_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_physics_joint_prismatic_create
+return physics_joint_prismatic_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+#define __bgml_function_execute_physics_joint_pulley_create
+return physics_joint_pulley_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+#define __bgml_function_execute_physics_joint_wheel_create
+return physics_joint_wheel_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+#define __bgml_function_execute_physics_joint_weld_create
+return physics_joint_weld_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_physics_joint_friction_create
+return physics_joint_friction_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_physics_joint_gear_create
+return physics_joint_gear_create(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_physics_joint_enable_motor
+return physics_joint_enable_motor(argument[0],argument[1]);
+#define __bgml_function_execute_physics_joint_get_value
+return physics_joint_get_value(argument[0],argument[1]);
+#define __bgml_function_execute_physics_joint_set_value
+return physics_joint_set_value(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_joint_delete
+return physics_joint_delete(argument[0]);
+#define __bgml_function_execute_physics_particle_create
+return physics_particle_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_physics_particle_delete
+return physics_particle_delete(argument[0]);
+#define __bgml_function_execute_physics_particle_delete_region_circle
+return physics_particle_delete_region_circle(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_particle_delete_region_box
+return physics_particle_delete_region_box(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_particle_delete_region_poly
+return physics_particle_delete_region_poly(argument[0]);
+#define __bgml_function_execute_physics_particle_set_flags
+return physics_particle_set_flags(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_set_category_flags
+return physics_particle_set_category_flags(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_draw
+return physics_particle_draw(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_physics_particle_draw_ext
+return physics_particle_draw_ext(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_physics_particle_count
+return physics_particle_count();
+#define __bgml_function_execute_physics_particle_get_data
+return physics_particle_get_data(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_get_data_particle
+return physics_particle_get_data_particle(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_particle_group_begin
+return physics_particle_group_begin(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+#define __bgml_function_execute_physics_particle_group_circle
+return physics_particle_group_circle(argument[0]);
+#define __bgml_function_execute_physics_particle_group_box
+return physics_particle_group_box(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_group_polygon
+return physics_particle_group_polygon();
+#define __bgml_function_execute_physics_particle_group_add_point
+return physics_particle_group_add_point(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_group_end
+return physics_particle_group_end();
+#define __bgml_function_execute_physics_particle_group_join
+return physics_particle_group_join(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_group_delete
+return physics_particle_group_delete(argument[0]);
+#define __bgml_function_execute_physics_particle_group_count
+return physics_particle_group_count(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_data
+return physics_particle_group_get_data(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_physics_particle_group_get_mass
+return physics_particle_group_get_mass(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_inertia
+return physics_particle_group_get_inertia(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_centre_x
+return physics_particle_group_get_centre_x(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_centre_y
+return physics_particle_group_get_centre_y(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_vel_x
+return physics_particle_group_get_vel_x(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_vel_y
+return physics_particle_group_get_vel_y(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_ang_vel
+return physics_particle_group_get_ang_vel(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_x
+return physics_particle_group_get_x(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_y
+return physics_particle_group_get_y(argument[0]);
+#define __bgml_function_execute_physics_particle_group_get_angle
+return physics_particle_group_get_angle(argument[0]);
+#define __bgml_function_execute_physics_particle_set_group_flags
+return physics_particle_set_group_flags(argument[0],argument[1]);
+#define __bgml_function_execute_physics_particle_get_group_flags
+return physics_particle_get_group_flags(argument[0]);
+#define __bgml_function_execute_physics_particle_get_max_count
+return physics_particle_get_max_count();
+#define __bgml_function_execute_physics_particle_get_radius
+return physics_particle_get_radius();
+#define __bgml_function_execute_physics_particle_get_density
+return physics_particle_get_density();
+#define __bgml_function_execute_physics_particle_get_damping
+return physics_particle_get_damping();
+#define __bgml_function_execute_physics_particle_get_gravity_scale
+return physics_particle_get_gravity_scale();
+#define __bgml_function_execute_physics_particle_set_max_count
+return physics_particle_set_max_count(argument[0]);
+#define __bgml_function_execute_physics_particle_set_radius
+return physics_particle_set_radius(argument[0]);
+#define __bgml_function_execute_physics_particle_set_density
+return physics_particle_set_density(argument[0]);
+#define __bgml_function_execute_physics_particle_set_damping
+return physics_particle_set_damping(argument[0]);
+#define __bgml_function_execute_physics_particle_set_gravity_scale
+return physics_particle_set_gravity_scale(argument[0]);
+#define __bgml_function_execute_network_create_socket
+return network_create_socket(argument[0]);
+#define __bgml_function_execute_network_create_socket_ext
+return network_create_socket_ext(argument[0],argument[1]);
+#define __bgml_function_execute_network_create_server
+return network_create_server(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_create_server_raw
+return network_create_server_raw(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_connect
+return network_connect(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_connect_raw
+return network_connect_raw(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_send_packet
+return network_send_packet(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_send_raw
+return network_send_raw(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_send_broadcast
+return network_send_broadcast(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_network_send_udp
+return network_send_udp(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_network_send_udp_raw
+return network_send_udp_raw(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_network_set_timeout
+return network_set_timeout(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_network_set_config
+return network_set_config(argument[0],argument[1]);
+#define __bgml_function_execute_network_resolve
+return network_resolve(argument[0]);
+#define __bgml_function_execute_network_destroy
+return network_destroy(argument[0]);
+#define __bgml_function_execute_buffer_create
+return buffer_create(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_write
+return buffer_write(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_read
+return buffer_read(argument[0],argument[1]);
+#define __bgml_function_execute_buffer_seek
+return buffer_seek(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_get_surface
+return buffer_get_surface(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_set_surface
+return buffer_set_surface(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_delete
+return buffer_delete(argument[0]);
+#define __bgml_function_execute_buffer_exists
+return buffer_exists(argument[0]);
+#define __bgml_function_execute_buffer_get_type
+return buffer_get_type(argument[0]);
+#define __bgml_function_execute_buffer_get_alignment
+return buffer_get_alignment(argument[0]);
+#define __bgml_function_execute_buffer_poke
+return buffer_poke(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_buffer_peek
+return buffer_peek(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_save
+return buffer_save(argument[0],argument[1]);
+#define __bgml_function_execute_buffer_save_ext
+return buffer_save_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_buffer_load
+return buffer_load(argument[0]);
+#define __bgml_function_execute_buffer_load_ext
+return buffer_load_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_load_partial
+return buffer_load_partial(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_copy
+return buffer_copy(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_fill
+return buffer_fill(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_get_size
+return buffer_get_size(argument[0]);
+#define __bgml_function_execute_buffer_tell
+return buffer_tell(argument[0]);
+#define __bgml_function_execute_buffer_resize
+return buffer_resize(argument[0],argument[1]);
+#define __bgml_function_execute_buffer_md5
+return buffer_md5(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_sha1
+return buffer_sha1(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_base64_encode
+return buffer_base64_encode(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_base64_decode
+return buffer_base64_decode(argument[0]);
+#define __bgml_function_execute_buffer_base64_decode_ext
+return buffer_base64_decode_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_sizeof
+return buffer_sizeof(argument[0]);
+#define __bgml_function_execute_buffer_get_address
+return buffer_get_address(argument[0]);
+#define __bgml_function_execute_buffer_create_from_vertex_buffer
+return buffer_create_from_vertex_buffer(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_create_from_vertex_buffer_ext
+return buffer_create_from_vertex_buffer_ext(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_copy_from_vertex_buffer
+return buffer_copy_from_vertex_buffer(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_buffer_async_group_begin
+return buffer_async_group_begin(argument[0]);
+#define __bgml_function_execute_buffer_async_group_option
+return buffer_async_group_option(argument[0],argument[1]);
+#define __bgml_function_execute_buffer_async_group_end
+return buffer_async_group_end();
+#define __bgml_function_execute_buffer_load_async
+return buffer_load_async(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_buffer_save_async
+return buffer_save_async(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_buffer_compress
+return buffer_compress(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_buffer_decompress
+return buffer_decompress(argument[0]);
+#define __bgml_function_execute_gml_release_mode
+return gml_release_mode(argument[0]);
+#define __bgml_function_execute_steam_activate_overlay
+return steam_activate_overlay(argument[0]);
+#define __bgml_function_execute_steam_is_overlay_enabled
+return steam_is_overlay_enabled();
+#define __bgml_function_execute_steam_is_overlay_activated
+return steam_is_overlay_activated();
+#define __bgml_function_execute_steam_get_persona_name
+return steam_get_persona_name();
+#define __bgml_function_execute_steam_initialised
+return steam_initialised();
+#define __bgml_function_execute_steam_is_cloud_enabled_for_app
+return steam_is_cloud_enabled_for_app();
+#define __bgml_function_execute_steam_is_cloud_enabled_for_account
+return steam_is_cloud_enabled_for_account();
+#define __bgml_function_execute_steam_file_persisted
+return steam_file_persisted(argument[0]);
+#define __bgml_function_execute_steam_get_quota_total
+return steam_get_quota_total();
+#define __bgml_function_execute_steam_get_quota_free
+return steam_get_quota_free();
+#define __bgml_function_execute_steam_file_write
+return steam_file_write(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_file_write_file
+return steam_file_write_file(argument[0],argument[1]);
+#define __bgml_function_execute_steam_file_read
+return steam_file_read(argument[0]);
+#define __bgml_function_execute_steam_file_delete
+return steam_file_delete(argument[0]);
+#define __bgml_function_execute_steam_file_exists
+return steam_file_exists(argument[0]);
+#define __bgml_function_execute_steam_file_size
+return steam_file_size(argument[0]);
+#define __bgml_function_execute_steam_file_share
+return steam_file_share(argument[0]);
+#define __bgml_function_execute_steam_is_screenshot_requested
+return steam_is_screenshot_requested();
+#define __bgml_function_execute_steam_send_screenshot
+return steam_send_screenshot(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_is_user_logged_on
+return steam_is_user_logged_on();
+#define __bgml_function_execute_steam_get_user_steam_id
+return steam_get_user_steam_id();
+#define __bgml_function_execute_steam_user_owns_dlc
+return steam_user_owns_dlc(argument[0]);
+#define __bgml_function_execute_steam_user_installed_dlc
+return steam_user_installed_dlc(argument[0]);
+#define __bgml_function_execute_steam_set_achievement
+return steam_set_achievement(argument[0]);
+#define __bgml_function_execute_steam_get_achievement
+return steam_get_achievement(argument[0]);
+#define __bgml_function_execute_steam_clear_achievement
+return steam_clear_achievement(argument[0]);
+#define __bgml_function_execute_steam_set_stat_int
+return steam_set_stat_int(argument[0],argument[1]);
+#define __bgml_function_execute_steam_set_stat_float
+return steam_set_stat_float(argument[0],argument[1]);
+#define __bgml_function_execute_steam_set_stat_avg_rate
+return steam_set_stat_avg_rate(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_get_stat_int
+return steam_get_stat_int(argument[0]);
+#define __bgml_function_execute_steam_get_stat_float
+return steam_get_stat_float(argument[0]);
+#define __bgml_function_execute_steam_get_stat_avg_rate
+return steam_get_stat_avg_rate(argument[0]);
+#define __bgml_function_execute_steam_reset_all_stats
+return steam_reset_all_stats();
+#define __bgml_function_execute_steam_reset_all_stats_achievements
+return steam_reset_all_stats_achievements();
+#define __bgml_function_execute_steam_stats_ready
+return steam_stats_ready();
+#define __bgml_function_execute_steam_create_leaderboard
+return steam_create_leaderboard(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_upload_score
+return steam_upload_score(argument[0],argument[1]);
+#define __bgml_function_execute_steam_upload_score_ext
+return steam_upload_score_ext(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_download_scores_around_user
+return steam_download_scores_around_user(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_download_scores
+return steam_download_scores(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_download_friends_scores
+return steam_download_friends_scores(argument[0]);
+#define __bgml_function_execute_steam_upload_score_buffer
+return steam_upload_score_buffer(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_upload_score_buffer_ext
+return steam_upload_score_buffer_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_steam_current_game_language
+return steam_current_game_language();
+#define __bgml_function_execute_steam_available_languages
+return steam_available_languages();
+#define __bgml_function_execute_steam_activate_overlay_browser
+return steam_activate_overlay_browser(argument[0]);
+#define __bgml_function_execute_steam_activate_overlay_user
+return steam_activate_overlay_user(argument[0],argument[1]);
+#define __bgml_function_execute_steam_activate_overlay_store
+return steam_activate_overlay_store(argument[0]);
+#define __bgml_function_execute_steam_get_user_persona_name
+return steam_get_user_persona_name(argument[0]);
+#define __bgml_function_execute_steam_get_app_id
+return steam_get_app_id();
+#define __bgml_function_execute_steam_get_user_account_id
+return steam_get_user_account_id();
+#define __bgml_function_execute_steam_ugc_download
+return steam_ugc_download(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_create_item
+return steam_ugc_create_item(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_start_item_update
+return steam_ugc_start_item_update(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_title
+return steam_ugc_set_item_title(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_description
+return steam_ugc_set_item_description(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_visibility
+return steam_ugc_set_item_visibility(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_tags
+return steam_ugc_set_item_tags(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_content
+return steam_ugc_set_item_content(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_set_item_preview
+return steam_ugc_set_item_preview(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_submit_item_update
+return steam_ugc_submit_item_update(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_get_item_update_progress
+return steam_ugc_get_item_update_progress(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_subscribe_item
+return steam_ugc_subscribe_item(argument[0]);
+#define __bgml_function_execute_steam_ugc_unsubscribe_item
+return steam_ugc_unsubscribe_item(argument[0]);
+#define __bgml_function_execute_steam_ugc_num_subscribed_items
+return steam_ugc_num_subscribed_items();
+#define __bgml_function_execute_steam_ugc_get_subscribed_items
+return steam_ugc_get_subscribed_items(argument[0]);
+#define __bgml_function_execute_steam_ugc_get_item_install_info
+return steam_ugc_get_item_install_info(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_get_item_update_info
+return steam_ugc_get_item_update_info(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_request_item_details
+return steam_ugc_request_item_details(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_create_query_user
+return steam_ugc_create_query_user(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_steam_ugc_create_query_user_ex
+return steam_ugc_create_query_user_ex(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+#define __bgml_function_execute_steam_ugc_create_query_all
+return steam_ugc_create_query_all(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_steam_ugc_create_query_all_ex
+return steam_ugc_create_query_all_ex(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_steam_ugc_query_set_cloud_filename_filter
+return steam_ugc_query_set_cloud_filename_filter(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_match_any_tag
+return steam_ugc_query_set_match_any_tag(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_search_text
+return steam_ugc_query_set_search_text(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_ranked_by_trend_days
+return steam_ugc_query_set_ranked_by_trend_days(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_add_required_tag
+return steam_ugc_query_add_required_tag(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_add_excluded_tag
+return steam_ugc_query_add_excluded_tag(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_return_long_description
+return steam_ugc_query_set_return_long_description(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_return_total_only
+return steam_ugc_query_set_return_total_only(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_query_set_allow_cached_response
+return steam_ugc_query_set_allow_cached_response(argument[0],argument[1]);
+#define __bgml_function_execute_steam_ugc_send_query
+return steam_ugc_send_query(argument[0]);
+#define __bgml_function_execute_shader_set
+return shader_set(argument[0]);
+#define __bgml_function_execute_shader_reset
+return shader_reset();
+#define __bgml_function_execute_shader_current
+return shader_current();
+#define __bgml_function_execute_shader_is_compiled
+return shader_is_compiled(argument[0]);
+#define __bgml_function_execute_shader_get_sampler_index
+return shader_get_sampler_index(argument[0],argument[1]);
+#define __bgml_function_execute_shader_get_uniform
+return shader_get_uniform(argument[0],argument[1]);
+switch(argument_count) {
+    case 0:
+        return shader_set_uniform_i();
+    case 1:
+        return shader_set_uniform_i(argument[0]);
+    case 2:
+        return shader_set_uniform_i(argument[0],argument[1]);
+    case 3:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2]);
+    case 4:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return shader_set_uniform_i(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_shader_set_uniform_i_array
+return shader_set_uniform_i_array(argument[0],argument[1]);
+switch(argument_count) {
+    case 0:
+        return shader_set_uniform_f();
+    case 1:
+        return shader_set_uniform_f(argument[0]);
+    case 2:
+        return shader_set_uniform_f(argument[0],argument[1]);
+    case 3:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2]);
+    case 4:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return shader_set_uniform_f(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_shader_set_uniform_f_array
+return shader_set_uniform_f_array(argument[0],argument[1]);
+#define __bgml_function_execute_shader_set_uniform_matrix
+return shader_set_uniform_matrix(argument[0]);
+#define __bgml_function_execute_shader_set_uniform_matrix_array
+return shader_set_uniform_matrix_array(argument[0],argument[1]);
+#define __bgml_function_execute_shader_enable_corner_id
+return shader_enable_corner_id(argument[0]);
+#define __bgml_function_execute_texture_set_stage
+return texture_set_stage(argument[0],argument[1]);
+#define __bgml_function_execute_texture_get_texel_width
+return texture_get_texel_width(argument[0]);
+#define __bgml_function_execute_texture_get_texel_height
+return texture_get_texel_height(argument[0]);
+#define __bgml_function_execute_shaders_are_supported
+return shaders_are_supported();
+#define __bgml_function_execute_vertex_format_begin
+return vertex_format_begin();
+#define __bgml_function_execute_vertex_format_end
+return vertex_format_end();
+#define __bgml_function_execute_vertex_format_delete
+return vertex_format_delete(argument[0]);
+#define __bgml_function_execute_vertex_format_add_position
+return vertex_format_add_position();
+#define __bgml_function_execute_vertex_format_add_position_3d
+return vertex_format_add_position_3d();
+#define __bgml_function_execute_vertex_format_add_colour
+return vertex_format_add_colour();
+#define __bgml_function_execute_vertex_format_add_color
+return vertex_format_add_color();
+#define __bgml_function_execute_vertex_format_add_normal
+return vertex_format_add_normal();
+#define __bgml_function_execute_vertex_format_add_texcoord
+return vertex_format_add_texcoord();
+#define __bgml_function_execute_vertex_format_add_textcoord
+return vertex_format_add_textcoord();
+#define __bgml_function_execute_vertex_format_add_custom
+return vertex_format_add_custom(argument[0],argument[1]);
+#define __bgml_function_execute_vertex_create_buffer
+return vertex_create_buffer();
+#define __bgml_function_execute_vertex_create_buffer_ext
+return vertex_create_buffer_ext(argument[0]);
+#define __bgml_function_execute_vertex_delete_buffer
+return vertex_delete_buffer(argument[0]);
+#define __bgml_function_execute_vertex_begin
+return vertex_begin(argument[0],argument[1]);
+#define __bgml_function_execute_vertex_end
+return vertex_end(argument[0]);
+#define __bgml_function_execute_vertex_position
+return vertex_position(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_position_3d
+return vertex_position_3d(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_vertex_colour
+return vertex_colour(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_color
+return vertex_color(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_argb
+return vertex_argb(argument[0],argument[1]);
+#define __bgml_function_execute_vertex_texcoord
+return vertex_texcoord(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_normal
+return vertex_normal(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_vertex_float1
+return vertex_float1(argument[0],argument[1]);
+#define __bgml_function_execute_vertex_float2
+return vertex_float2(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_float3
+return vertex_float3(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_vertex_float4
+return vertex_float4(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_vertex_ubyte4
+return vertex_ubyte4(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_vertex_submit
+return vertex_submit(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_vertex_freeze
+return vertex_freeze(argument[0]);
+#define __bgml_function_execute_vertex_get_number
+return vertex_get_number(argument[0]);
+#define __bgml_function_execute_vertex_get_buffer_size
+return vertex_get_buffer_size(argument[0]);
+#define __bgml_function_execute_vertex_create_buffer_from_buffer
+return vertex_create_buffer_from_buffer(argument[0],argument[1]);
+#define __bgml_function_execute_vertex_create_buffer_from_buffer_ext
+return vertex_create_buffer_from_buffer_ext(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_push_local_notification
+return push_local_notification(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_push_get_first_local_notification
+return push_get_first_local_notification(argument[0]);
+#define __bgml_function_execute_push_get_next_local_notification
+return push_get_next_local_notification(argument[0]);
+#define __bgml_function_execute_push_cancel_local_notification
+return push_cancel_local_notification(argument[0]);
+#define __bgml_function_execute_skeleton_animation_set
+return skeleton_animation_set(argument[0]);
+#define __bgml_function_execute_skeleton_animation_get
+return skeleton_animation_get();
+#define __bgml_function_execute_skeleton_animation_mix
+return skeleton_animation_mix(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_skeleton_animation_set_ext
+return skeleton_animation_set_ext(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_animation_get_ext
+return skeleton_animation_get_ext(argument[0]);
+#define __bgml_function_execute_skeleton_animation_get_duration
+return skeleton_animation_get_duration(argument[0]);
+#define __bgml_function_execute_skeleton_animation_get_frames
+return skeleton_animation_get_frames(argument[0]);
+#define __bgml_function_execute_skeleton_animation_clear
+return skeleton_animation_clear(argument[0]);
+#define __bgml_function_execute_skeleton_skin_set
+return skeleton_skin_set(argument[0]);
+#define __bgml_function_execute_skeleton_skin_get
+return skeleton_skin_get();
+#define __bgml_function_execute_skeleton_attachment_set
+return skeleton_attachment_set(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_attachment_get
+return skeleton_attachment_get(argument[0]);
+#define __bgml_function_execute_skeleton_attachment_create
+return skeleton_attachment_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_skeleton_collision_draw_set
+return skeleton_collision_draw_set(argument[0]);
+#define __bgml_function_execute_skeleton_bone_data_get
+return skeleton_bone_data_get(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_bone_data_set
+return skeleton_bone_data_set(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_bone_state_get
+return skeleton_bone_state_get(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_bone_state_set
+return skeleton_bone_state_set(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_get_minmax
+return skeleton_get_minmax();
+#define __bgml_function_execute_skeleton_get_num_bounds
+return skeleton_get_num_bounds();
+#define __bgml_function_execute_skeleton_get_bounds
+return skeleton_get_bounds(argument[0]);
+#define __bgml_function_execute_skeleton_animation_get_frame
+return skeleton_animation_get_frame(argument[0]);
+#define __bgml_function_execute_skeleton_animation_set_frame
+return skeleton_animation_set_frame(argument[0],argument[1]);
+#define __bgml_function_execute_draw_skeleton
+return draw_skeleton(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_skeleton_time
+return draw_skeleton_time(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_skeleton_instance
+return draw_skeleton_instance(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+#define __bgml_function_execute_draw_skeleton_collision
+return draw_skeleton_collision(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+#define __bgml_function_execute_skeleton_animation_list
+return skeleton_animation_list(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_skin_list
+return skeleton_skin_list(argument[0],argument[1]);
+#define __bgml_function_execute_skeleton_slot_data
+return skeleton_slot_data(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_id
+return layer_get_id(argument[0]);
+#define __bgml_function_execute_layer_get_id_at_depth
+return layer_get_id_at_depth(argument[0]);
+#define __bgml_function_execute_layer_get_depth
+return layer_get_depth(argument[0]);
+switch(argument_count) {
+    case 0:
+        return layer_create();
+    case 1:
+        return layer_create(argument[0]);
+    case 2:
+        return layer_create(argument[0],argument[1]);
+    case 3:
+        return layer_create(argument[0],argument[1],argument[2]);
+    case 4:
+        return layer_create(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return layer_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_layer_destroy
+return layer_destroy(argument[0]);
+#define __bgml_function_execute_layer_destroy_instances
+return layer_destroy_instances(argument[0]);
+#define __bgml_function_execute_layer_add_instance
+return layer_add_instance(argument[0],argument[1]);
+#define __bgml_function_execute_layer_has_instance
+return layer_has_instance(argument[0],argument[1]);
+#define __bgml_function_execute_layer_set_visible
+return layer_set_visible(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_visible
+return layer_get_visible(argument[0]);
+#define __bgml_function_execute_layer_exists
+return layer_exists(argument[0]);
+#define __bgml_function_execute_layer_x
+return layer_x(argument[0],argument[1]);
+#define __bgml_function_execute_layer_y
+return layer_y(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_x
+return layer_get_x(argument[0]);
+#define __bgml_function_execute_layer_get_y
+return layer_get_y(argument[0]);
+#define __bgml_function_execute_layer_hspeed
+return layer_hspeed(argument[0],argument[1]);
+#define __bgml_function_execute_layer_vspeed
+return layer_vspeed(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_hspeed
+return layer_get_hspeed(argument[0]);
+#define __bgml_function_execute_layer_get_vspeed
+return layer_get_vspeed(argument[0]);
+#define __bgml_function_execute_layer_script_begin
+return layer_script_begin(argument[0],argument[1]);
+#define __bgml_function_execute_layer_script_end
+return layer_script_end(argument[0],argument[1]);
+#define __bgml_function_execute_layer_shader
+return layer_shader(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_script_begin
+return layer_get_script_begin(argument[0]);
+#define __bgml_function_execute_layer_get_script_end
+return layer_get_script_end(argument[0]);
+#define __bgml_function_execute_layer_get_shader
+return layer_get_shader(argument[0]);
+#define __bgml_function_execute_layer_set_target_room
+return layer_set_target_room(argument[0]);
+#define __bgml_function_execute_layer_get_target_room
+return layer_get_target_room();
+#define __bgml_function_execute_layer_reset_target_room
+return layer_reset_target_room();
+#define __bgml_function_execute_layer_get_all
+return layer_get_all();
+#define __bgml_function_execute_layer_get_all_elements
+return layer_get_all_elements(argument[0]);
+#define __bgml_function_execute_layer_get_name
+return layer_get_name(argument[0]);
+#define __bgml_function_execute_layer_depth
+return layer_depth(argument[0],argument[1]);
+#define __bgml_function_execute_layer_get_element_layer
+return layer_get_element_layer(argument[0]);
+#define __bgml_function_execute_layer_get_element_type
+return layer_get_element_type(argument[0]);
+#define __bgml_function_execute_layer_element_move
+return layer_element_move(argument[0],argument[1]);
+#define __bgml_function_execute_layer_force_draw_depth
+return layer_force_draw_depth(argument[0],argument[1]);
+#define __bgml_function_execute_layer_is_draw_depth_forced
+return layer_is_draw_depth_forced();
+#define __bgml_function_execute_layer_get_forced_depth
+return layer_get_forced_depth();
+#define __bgml_function_execute_layer_background_get_id
+return layer_background_get_id(argument[0]);
+#define __bgml_function_execute_layer_background_exists
+return layer_background_exists(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_create
+return layer_background_create(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_destroy
+return layer_background_destroy(argument[0]);
+#define __bgml_function_execute_layer_background_visible
+return layer_background_visible(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_change
+return layer_background_change(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_sprite
+return layer_background_sprite(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_htiled
+return layer_background_htiled(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_vtiled
+return layer_background_vtiled(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_stretch
+return layer_background_stretch(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_yscale
+return layer_background_yscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_xscale
+return layer_background_xscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_blend
+return layer_background_blend(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_alpha
+return layer_background_alpha(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_index
+return layer_background_index(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_speed
+return layer_background_speed(argument[0],argument[1]);
+#define __bgml_function_execute_layer_background_get_visible
+return layer_background_get_visible(argument[0]);
+#define __bgml_function_execute_layer_background_get_sprite
+return layer_background_get_sprite(argument[0]);
+#define __bgml_function_execute_layer_background_get_htiled
+return layer_background_get_htiled(argument[0]);
+#define __bgml_function_execute_layer_background_get_vtiled
+return layer_background_get_vtiled(argument[0]);
+#define __bgml_function_execute_layer_background_get_stretch
+return layer_background_get_stretch(argument[0]);
+#define __bgml_function_execute_layer_background_get_yscale
+return layer_background_get_yscale(argument[0]);
+#define __bgml_function_execute_layer_background_get_xscale
+return layer_background_get_xscale(argument[0]);
+#define __bgml_function_execute_layer_background_get_blend
+return layer_background_get_blend(argument[0]);
+#define __bgml_function_execute_layer_background_get_alpha
+return layer_background_get_alpha(argument[0]);
+#define __bgml_function_execute_layer_background_get_index
+return layer_background_get_index(argument[0]);
+#define __bgml_function_execute_layer_background_get_speed
+return layer_background_get_speed(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_id
+return layer_sprite_get_id(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_exists
+return layer_sprite_exists(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_create
+return layer_sprite_create(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_layer_sprite_destroy
+return layer_sprite_destroy(argument[0]);
+#define __bgml_function_execute_layer_sprite_change
+return layer_sprite_change(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_index
+return layer_sprite_index(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_speed
+return layer_sprite_speed(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_xscale
+return layer_sprite_xscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_yscale
+return layer_sprite_yscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_angle
+return layer_sprite_angle(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_blend
+return layer_sprite_blend(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_alpha
+return layer_sprite_alpha(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_x
+return layer_sprite_x(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_y
+return layer_sprite_y(argument[0],argument[1]);
+#define __bgml_function_execute_layer_sprite_get_sprite
+return layer_sprite_get_sprite(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_index
+return layer_sprite_get_index(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_speed
+return layer_sprite_get_speed(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_xscale
+return layer_sprite_get_xscale(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_yscale
+return layer_sprite_get_yscale(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_angle
+return layer_sprite_get_angle(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_blend
+return layer_sprite_get_blend(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_alpha
+return layer_sprite_get_alpha(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_x
+return layer_sprite_get_x(argument[0]);
+#define __bgml_function_execute_layer_sprite_get_y
+return layer_sprite_get_y(argument[0]);
+#define __bgml_function_execute_layer_tilemap_get_id
+return layer_tilemap_get_id(argument[0]);
+#define __bgml_function_execute_layer_tilemap_exists
+return layer_tilemap_exists(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tilemap_create
+return layer_tilemap_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+#define __bgml_function_execute_layer_tilemap_destroy
+return layer_tilemap_destroy(argument[0]);
+#define __bgml_function_execute_tilemap_tileset
+return tilemap_tileset(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_x
+return tilemap_x(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_y
+return tilemap_y(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_set
+return tilemap_set(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_tilemap_set_at_pixel
+return tilemap_set_at_pixel(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_tilemap_get_tileset
+return tilemap_get_tileset(argument[0]);
+#define __bgml_function_execute_tilemap_get_tile_width
+return tilemap_get_tile_width(argument[0]);
+#define __bgml_function_execute_tilemap_get_tile_height
+return tilemap_get_tile_height(argument[0]);
+#define __bgml_function_execute_tilemap_get_width
+return tilemap_get_width(argument[0]);
+#define __bgml_function_execute_tilemap_get_height
+return tilemap_get_height(argument[0]);
+#define __bgml_function_execute_tilemap_set_width
+return tilemap_set_width(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_set_height
+return tilemap_set_height(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_get_x
+return tilemap_get_x(argument[0]);
+#define __bgml_function_execute_tilemap_get_y
+return tilemap_get_y(argument[0]);
+#define __bgml_function_execute_tilemap_get
+return tilemap_get(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_tilemap_get_at_pixel
+return tilemap_get_at_pixel(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_tilemap_get_cell_x_at_pixel
+return tilemap_get_cell_x_at_pixel(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_tilemap_get_cell_y_at_pixel
+return tilemap_get_cell_y_at_pixel(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_tilemap_clear
+return tilemap_clear(argument[0],argument[1]);
+#define __bgml_function_execute_draw_tilemap
+return draw_tilemap(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_draw_tile
+return draw_tile(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_tilemap_set_global_mask
+return tilemap_set_global_mask(argument[0]);
+#define __bgml_function_execute_tilemap_get_global_mask
+return tilemap_get_global_mask();
+#define __bgml_function_execute_tilemap_set_mask
+return tilemap_set_mask(argument[0],argument[1]);
+#define __bgml_function_execute_tilemap_get_mask
+return tilemap_get_mask(argument[0]);
+#define __bgml_function_execute_tilemap_get_frame
+return tilemap_get_frame(argument[0]);
+#define __bgml_function_execute_tile_set_empty
+return tile_set_empty(argument[0]);
+#define __bgml_function_execute_tile_set_index
+return tile_set_index(argument[0],argument[1]);
+#define __bgml_function_execute_tile_set_flip
+return tile_set_flip(argument[0],argument[1]);
+#define __bgml_function_execute_tile_set_mirror
+return tile_set_mirror(argument[0],argument[1]);
+#define __bgml_function_execute_tile_set_rotate
+return tile_set_rotate(argument[0],argument[1]);
+#define __bgml_function_execute_tile_get_empty
+return tile_get_empty(argument[0]);
+#define __bgml_function_execute_tile_get_index
+return tile_get_index(argument[0]);
+#define __bgml_function_execute_tile_get_flip
+return tile_get_flip(argument[0]);
+#define __bgml_function_execute_tile_get_mirror
+return tile_get_mirror(argument[0]);
+#define __bgml_function_execute_tile_get_rotate
+return tile_get_rotate(argument[0]);
+switch(argument_count) {
+    case 0:
+        return layer_tile_exists();
+    case 1:
+        return layer_tile_exists(argument[0]);
+    case 2:
+        return layer_tile_exists(argument[0],argument[1]);
+    case 3:
+        return layer_tile_exists(argument[0],argument[1],argument[2]);
+    case 4:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3]);
+    case 5:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4]);
+    case 6:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5]);
+    case 7:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6]);
+    case 8:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+    case 9:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8]);
+    case 10:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+    case 11:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10]);
+    case 12:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11]);
+    case 13:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12]);
+    case 14:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13]);
+    case 15:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14]);
+    case 16:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15]);
+    case 17:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16]);
+    case 18:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17]);
+    case 19:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18]);
+    case 20:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19]);
+    case 21:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20]);
+    case 22:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21]);
+    case 23:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22]);
+    case 24:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23]);
+    case 25:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24]);
+    case 26:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25]);
+    case 27:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26]);
+    case 28:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27]);
+    case 29:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28]);
+    case 30:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29]);
+    case 31:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30]);
+    case 32:
+        return layer_tile_exists(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
+}
+return undefined;
+#define __bgml_function_execute_layer_tile_create
+return layer_tile_create(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7]);
+#define __bgml_function_execute_layer_tile_destroy
+return layer_tile_destroy(argument[0]);
+#define __bgml_function_execute_layer_tile_change
+return layer_tile_change(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_xscale
+return layer_tile_xscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_yscale
+return layer_tile_yscale(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_blend
+return layer_tile_blend(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_alpha
+return layer_tile_alpha(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_x
+return layer_tile_x(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_y
+return layer_tile_y(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_region
+return layer_tile_region(argument[0],argument[1],argument[2],argument[3],argument[4]);
+#define __bgml_function_execute_layer_tile_visible
+return layer_tile_visible(argument[0],argument[1]);
+#define __bgml_function_execute_layer_tile_get_sprite
+return layer_tile_get_sprite(argument[0]);
+#define __bgml_function_execute_layer_tile_get_xscale
+return layer_tile_get_xscale(argument[0]);
+#define __bgml_function_execute_layer_tile_get_yscale
+return layer_tile_get_yscale(argument[0]);
+#define __bgml_function_execute_layer_tile_get_blend
+return layer_tile_get_blend(argument[0]);
+#define __bgml_function_execute_layer_tile_get_alpha
+return layer_tile_get_alpha(argument[0]);
+#define __bgml_function_execute_layer_tile_get_x
+return layer_tile_get_x(argument[0]);
+#define __bgml_function_execute_layer_tile_get_y
+return layer_tile_get_y(argument[0]);
+#define __bgml_function_execute_layer_tile_get_region
+return layer_tile_get_region(argument[0]);
+#define __bgml_function_execute_layer_tile_get_visible
+return layer_tile_get_visible(argument[0]);
+#define __bgml_function_execute_layer_instance_get_instance
+return layer_instance_get_instance(argument[0]);
+#define __bgml_function_execute_instance_activate_layer
+return instance_activate_layer(argument[0]);
+#define __bgml_function_execute_instance_deactivate_layer
+return instance_deactivate_layer(argument[0]);
+#define __bgml_function_execute_camera_create
+return camera_create();
+#define __bgml_function_execute_camera_create_view
+return camera_create_view(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9]);
+#define __bgml_function_execute_camera_destroy
+return camera_destroy(argument[0]);
+#define __bgml_function_execute_camera_apply
+return camera_apply(argument[0]);
+#define __bgml_function_execute_camera_get_active
+return camera_get_active();
+#define __bgml_function_execute_camera_get_default
+return camera_get_default();
+#define __bgml_function_execute_camera_set_default
+return camera_set_default(argument[0]);
+#define __bgml_function_execute_camera_set_view_mat
+return camera_set_view_mat(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_proj_mat
+return camera_set_proj_mat(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_update_script
+return camera_set_update_script(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_begin_script
+return camera_set_begin_script(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_end_script
+return camera_set_end_script(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_view_pos
+return camera_set_view_pos(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_camera_set_view_size
+return camera_set_view_size(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_camera_set_view_speed
+return camera_set_view_speed(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_camera_set_view_border
+return camera_set_view_border(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_camera_set_view_angle
+return camera_set_view_angle(argument[0],argument[1]);
+#define __bgml_function_execute_camera_set_view_target
+return camera_set_view_target(argument[0],argument[1]);
+#define __bgml_function_execute_camera_get_view_mat
+return camera_get_view_mat(argument[0]);
+#define __bgml_function_execute_camera_get_proj_mat
+return camera_get_proj_mat(argument[0]);
+#define __bgml_function_execute_camera_get_update_script
+return camera_get_update_script(argument[0]);
+#define __bgml_function_execute_camera_get_begin_script
+return camera_get_begin_script(argument[0]);
+#define __bgml_function_execute_camera_get_end_script
+return camera_get_end_script(argument[0]);
+#define __bgml_function_execute_camera_get_view_x
+return camera_get_view_x(argument[0]);
+#define __bgml_function_execute_camera_get_view_y
+return camera_get_view_y(argument[0]);
+#define __bgml_function_execute_camera_get_view_width
+return camera_get_view_width(argument[0]);
+#define __bgml_function_execute_camera_get_view_height
+return camera_get_view_height(argument[0]);
+#define __bgml_function_execute_camera_get_view_speed_x
+return camera_get_view_speed_x(argument[0]);
+#define __bgml_function_execute_camera_get_view_speed_y
+return camera_get_view_speed_y(argument[0]);
+#define __bgml_function_execute_camera_get_view_border_x
+return camera_get_view_border_x(argument[0]);
+#define __bgml_function_execute_camera_get_view_border_y
+return camera_get_view_border_y(argument[0]);
+#define __bgml_function_execute_camera_get_view_angle
+return camera_get_view_angle(argument[0]);
+#define __bgml_function_execute_camera_get_view_target
+return camera_get_view_target(argument[0]);
+#define __bgml_function_execute_view_get_camera
+return view_get_camera(argument[0]);
+#define __bgml_function_execute_view_get_visible
+return view_get_visible(argument[0]);
+#define __bgml_function_execute_view_get_xport
+return view_get_xport(argument[0]);
+#define __bgml_function_execute_view_get_yport
+return view_get_yport(argument[0]);
+#define __bgml_function_execute_view_get_wport
+return view_get_wport(argument[0]);
+#define __bgml_function_execute_view_get_hport
+return view_get_hport(argument[0]);
+#define __bgml_function_execute_view_get_surface_id
+return view_get_surface_id(argument[0]);
+#define __bgml_function_execute_view_set_camera
+return view_set_camera(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_visible
+return view_set_visible(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_xport
+return view_set_xport(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_yport
+return view_set_yport(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_wport
+return view_set_wport(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_hport
+return view_set_hport(argument[0],argument[1]);
+#define __bgml_function_execute_view_set_surface_id
+return view_set_surface_id(argument[0],argument[1]);
+#define __bgml_function_execute_gesture_drag_time
+return gesture_drag_time(argument[0]);
+#define __bgml_function_execute_gesture_drag_distance
+return gesture_drag_distance(argument[0]);
+#define __bgml_function_execute_gesture_flick_speed
+return gesture_flick_speed(argument[0]);
+#define __bgml_function_execute_gesture_double_tap_time
+return gesture_double_tap_time(argument[0]);
+#define __bgml_function_execute_gesture_double_tap_distance
+return gesture_double_tap_distance(argument[0]);
+#define __bgml_function_execute_gesture_pinch_distance
+return gesture_pinch_distance(argument[0]);
+#define __bgml_function_execute_gesture_pinch_angle_towards
+return gesture_pinch_angle_towards(argument[0]);
+#define __bgml_function_execute_gesture_pinch_angle_away
+return gesture_pinch_angle_away(argument[0]);
+#define __bgml_function_execute_gesture_rotate_time
+return gesture_rotate_time(argument[0]);
+#define __bgml_function_execute_gesture_rotate_angle
+return gesture_rotate_angle(argument[0]);
+#define __bgml_function_execute_gesture_tap_count
+return gesture_tap_count(argument[0]);
+#define __bgml_function_execute_gesture_get_drag_time
+return gesture_get_drag_time();
+#define __bgml_function_execute_gesture_get_drag_distance
+return gesture_get_drag_distance();
+#define __bgml_function_execute_gesture_get_flick_speed
+return gesture_get_flick_speed();
+#define __bgml_function_execute_gesture_get_double_tap_time
+return gesture_get_double_tap_time();
+#define __bgml_function_execute_gesture_get_double_tap_distance
+return gesture_get_double_tap_distance();
+#define __bgml_function_execute_gesture_get_pinch_distance
+return gesture_get_pinch_distance();
+#define __bgml_function_execute_gesture_get_pinch_angle_towards
+return gesture_get_pinch_angle_towards();
+#define __bgml_function_execute_gesture_get_pinch_angle_away
+return gesture_get_pinch_angle_away();
+#define __bgml_function_execute_gesture_get_rotate_time
+return gesture_get_rotate_time();
+#define __bgml_function_execute_gesture_get_rotate_angle
+return gesture_get_rotate_angle();
+#define __bgml_function_execute_gesture_get_tap_count
+return gesture_get_tap_count();
