@@ -105,7 +105,7 @@
                         
                     ],
                     "externalName": "printf",
-                    "help": "stringf(string,...args)",
+                    "help": "printf(string,...args)",
                     "hidden": false,
                     "kind": 2,
                     "name": "printf",
