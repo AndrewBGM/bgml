@@ -4,7 +4,7 @@ Collection of useful functions for GameMaker Studio 2
 
 ## Functions
 
-#### array_join(array,[separator=","])
+### array_join(array,[separator=","])
 
 Converts all elements in an array into a string separated by `separator`
 
@@ -24,7 +24,7 @@ Converts all elements in an array into a string separated by `separator`
 array_join(['a', 'b', 'c'], '~');
 ```
 
-#### array_reverse(array)
+### array_reverse(array)
 
 Reverses `array` so that the first element becomes the last, the second element becomes the second to last, and so on.
 
