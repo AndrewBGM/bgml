@@ -515,7 +515,7 @@ return random_get_seed();
 return randomize();
 #define __bgml_function_execute_randomise
 return randomise();
-#define ___bgml_function_execute_choose
+#define __bgml_function_execute_choose
 switch(argument_count) {
     case 0:
         return choose();
@@ -645,6 +645,7 @@ return radtodeg(argument[0]);
 return power(argument[0],argument[1]);
 #define __bgml_function_execute_logn
 return logn(argument[0],argument[1]);
+#define __bgml_function_execute_min
 switch(argument_count) {
     case 0:
         return min();
@@ -714,6 +715,7 @@ switch(argument_count) {
         return min(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
 }
 return undefined;
+#define __bgml_function_execute_max
 switch(argument_count) {
     case 0:
         return max();
@@ -783,6 +785,7 @@ switch(argument_count) {
         return max(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
 }
 return undefined;
+#define __bgml_function_execute_mean
 switch(argument_count) {
     case 0:
         return mean();
@@ -852,6 +855,7 @@ switch(argument_count) {
         return mean(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
 }
 return undefined;
+#define __bgml_function_execute_median
 switch(argument_count) {
     case 0:
         return median();
@@ -1237,6 +1241,7 @@ return instance_create_layer(argument[0],argument[1],argument[2],argument[3]);
 return instance_copy(argument[0]);
 #define __bgml_function_execute_instance_change
 return instance_change(argument[0],argument[1]);
+#define __bgml_function_execute_instance_destroy
 switch(argument_count) {
     case 0:
         return instance_destroy();
@@ -2218,6 +2223,7 @@ return path_rotate(argument[0],argument[1]);
 return path_rescale(argument[0],argument[1],argument[2]);
 #define __bgml_function_execute_path_shift
 return path_shift(argument[0],argument[1],argument[2]);
+#define __bgml_function_execute_script_execute
 switch(argument_count) {
     case 0:
         return script_execute();
@@ -2451,6 +2457,7 @@ return ds_stack_copy(argument[0],argument[1]);
 return ds_stack_size(argument[0]);
 #define __bgml_function_execute_ds_stack_empty
 return ds_stack_empty(argument[0]);
+#define __bgml_function_execute_ds_stack_push
 switch(argument_count) {
     case 0:
         return ds_stack_push();
@@ -2526,6 +2533,7 @@ return ds_stack_pop(argument[0]);
 return ds_stack_top(argument[0]);
 #define __bgml_function_execute_ds_stack_write
 return ds_stack_write(argument[0]);
+#define __bgml_function_execute_ds_stack_read
 switch(argument_count) {
     case 0:
         return ds_stack_read();
@@ -2607,6 +2615,7 @@ return ds_queue_copy(argument[0],argument[1]);
 return ds_queue_size(argument[0]);
 #define __bgml_function_execute_ds_queue_empty
 return ds_queue_empty(argument[0]);
+#define __bgml_function_execute_ds_queue_enqueue
 switch(argument_count) {
     case 0:
         return ds_queue_enqueue();
@@ -2684,6 +2693,7 @@ return ds_queue_head(argument[0]);
 return ds_queue_tail(argument[0]);
 #define __bgml_function_execute_ds_queue_write
 return ds_queue_write(argument[0]);
+#define __bgml_function_execute_ds_queue_read
 switch(argument_count) {
     case 0:
         return ds_queue_read();
@@ -2765,6 +2775,7 @@ return ds_list_copy(argument[0],argument[1]);
 return ds_list_size(argument[0]);
 #define __bgml_function_execute_ds_list_empty
 return ds_list_empty(argument[0]);
+#define __bgml_function_execute_ds_list_add
 switch(argument_count) {
     case 0:
         return ds_list_add();
@@ -2854,6 +2865,7 @@ return ds_list_sort(argument[0],argument[1]);
 return ds_list_shuffle(argument[0]);
 #define __bgml_function_execute_ds_list_write
 return ds_list_write(argument[0]);
+#define __bgml_function_execute_ds_list_read
 switch(argument_count) {
     case 0:
         return ds_list_read();
@@ -2965,6 +2977,7 @@ return ds_map_find_first(argument[0]);
 return ds_map_find_last(argument[0]);
 #define __bgml_function_execute_ds_map_write
 return ds_map_write(argument[0]);
+#define __bgml_function_execute_ds_map_read
 switch(argument_count) {
     case 0:
         return ds_map_read();
@@ -3074,6 +3087,7 @@ return ds_priority_delete_max(argument[0]);
 return ds_priority_find_max(argument[0]);
 #define __bgml_function_execute_ds_priority_write
 return ds_priority_write(argument[0]);
+#define __bgml_function_execute_ds_priority_read
 switch(argument_count) {
     case 0:
         return ds_priority_read();
@@ -3215,6 +3229,7 @@ return ds_grid_value_disk_y(argument[0],argument[1],argument[2],argument[3],argu
 return ds_grid_shuffle(argument[0]);
 #define __bgml_function_execute_ds_grid_write
 return ds_grid_write(argument[0]);
+#define __bgml_function_execute_ds_grid_read
 switch(argument_count) {
     case 0:
         return ds_grid_read();
@@ -3408,6 +3423,7 @@ return part_emitter_region(argument[0],argument[1],argument[2],argument[3],argum
 return part_emitter_burst(argument[0],argument[1],argument[2],argument[3]);
 #define __bgml_function_execute_part_emitter_stream
 return part_emitter_stream(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_external_call
 switch(argument_count) {
     case 0:
         return external_call();
@@ -3477,6 +3493,7 @@ switch(argument_count) {
         return external_call(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
 }
 return undefined;
+#define __bgml_function_execute_external_define
 switch(argument_count) {
     case 0:
         return external_define();
@@ -3572,6 +3589,7 @@ return matrix_build_projection_perspective_fov(argument[0],argument[1],argument[
 return matrix_multiply(argument[0],argument[1]);
 #define __bgml_function_execute_matrix_transform_vertex
 return matrix_transform_vertex(argument[0],argument[1],argument[2],argument[3]);
+#define __bgml_function_execute_matrix_stack_push
 switch(argument_count) {
     case 0:
         return matrix_stack_push();
@@ -3669,6 +3687,7 @@ return display_get_dpi_x();
 return display_get_dpi_y();
 #define __bgml_function_execute_display_set_gui_size
 return display_set_gui_size(argument[0],argument[1]);
+#define __bgml_function_execute_display_set_gui_maximise
 switch(argument_count) {
     case 0:
         return display_set_gui_maximise();
@@ -3738,6 +3757,7 @@ switch(argument_count) {
         return display_set_gui_maximise(argument[0],argument[1],argument[2],argument[3],argument[4],argument[5],argument[6],argument[7],argument[8],argument[9],argument[10],argument[11],argument[12],argument[13],argument[14],argument[15],argument[16],argument[17],argument[18],argument[19],argument[20],argument[21],argument[22],argument[23],argument[24],argument[25],argument[26],argument[27],argument[28],argument[29],argument[30],argument[31]);
 }
 return undefined;
+#define __bgml_function_execute_display_set_gui_maximize
 switch(argument_count) {
     case 0:
         return display_set_gui_maximize();
@@ -4833,6 +4853,7 @@ return shader_is_compiled(argument[0]);
 return shader_get_sampler_index(argument[0],argument[1]);
 #define __bgml_function_execute_shader_get_uniform
 return shader_get_uniform(argument[0],argument[1]);
+#define __bgml_function_execute_shader_set_uniform_i
 switch(argument_count) {
     case 0:
         return shader_set_uniform_i();
@@ -4904,6 +4925,7 @@ switch(argument_count) {
 return undefined;
 #define __bgml_function_execute_shader_set_uniform_i_array
 return shader_set_uniform_i_array(argument[0],argument[1]);
+#define __bgml_function_execute_shader_set_uniform_f
 switch(argument_count) {
     case 0:
         return shader_set_uniform_f();
@@ -5131,6 +5153,7 @@ return layer_get_id(argument[0]);
 return layer_get_id_at_depth(argument[0]);
 #define __bgml_function_execute_layer_get_depth
 return layer_get_depth(argument[0]);
+#define __bgml_function_execute_layer_create
 switch(argument_count) {
     case 0:
         return layer_create();
@@ -5450,6 +5473,7 @@ return tile_get_flip(argument[0]);
 return tile_get_mirror(argument[0]);
 #define __bgml_function_execute_tile_get_rotate
 return tile_get_rotate(argument[0]);
+#define __bgml_function_execute_layer_tile_exists
 switch(argument_count) {
     case 0:
         return layer_tile_exists();
