@@ -515,6 +515,7 @@ return random_get_seed();
 return randomize();
 #define __bgml_function_execute_randomise
 return randomise();
+#define ___bgml_function_execute_choose
 switch(argument_count) {
     case 0:
         return choose();
