@@ -126,46 +126,6 @@ printf(_list);
 => [ 3, 2, 1 ]
 ```
 
-### function_execute(name, ...args)
-
-Executes a GML function by name, and returns the result.
-
-##### Since
-0.0.1
-
-##### Arguments
- * `name {string}`: The function to execute.
- * `...args {any}`: Any parameters to pass to the function.
-
-##### Returns
-`{any}`: Result of function call.
-
-##### Example
-```javascript
-function_execute("show_debug_message", "Hello World!");
-=> "Hello World!"
-```
-
-### function_execute_spread(name, args)
-
-Executes a GML function by name using an array of parameters, and returns the result.
-
-##### Since
-0.0.1
-
-##### Arguments
- * `name {string}`: The function to execute.
- * `args {array}`: Array of parameters to pass to the function.
-
-##### Returns
-`{any}`: Result of function call.
-
-##### Example
-```javascript
-function_execute_spread("show_debug_message", ["Hello World!"]);
-=> "Hello World!"
-```
-
 ### printf(string, ...args)
 
 Prints a formatted string to the console
