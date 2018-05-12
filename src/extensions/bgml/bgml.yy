@@ -260,36 +260,6 @@
                     "kind": 2,
                     "name": "script_execute_spread",
                     "returnType": 1
-                },
-                {
-                    "id": "a7e1ecda-ddd2-45a1-bcb9-4409ad362ba9",
-                    "modelName": "GMExtensionFunction",
-                    "mvc": "1.0",
-                    "argCount": -1,
-                    "args": [
-                        
-                    ],
-                    "externalName": "draw_text_outline",
-                    "help": "draw_text_outline(x,y,text,bgcolor,olcolor)",
-                    "hidden": false,
-                    "kind": 2,
-                    "name": "draw_text_outline",
-                    "returnType": 1
-                },
-                {
-                    "id": "738f1edb-7ce7-447e-ab7d-b250713ab6fe",
-                    "modelName": "GMExtensionFunction",
-                    "mvc": "1.0",
-                    "argCount": -1,
-                    "args": [
-                        
-                    ],
-                    "externalName": "draw_text_styled",
-                    "help": "draw_text_styled(x,y,text)",
-                    "hidden": false,
-                    "kind": 2,
-                    "name": "draw_text_styled",
-                    "returnType": 1
                 }
             ],
             "init": "",
@@ -308,9 +278,7 @@
                 "2e0b808e-7109-430f-a0be-a0f43b3d6f1d",
                 "645c84a1-d49f-46f1-8c9d-2b44c19b4b4e",
                 "7f95dd14-5863-4521-9150-fb71521702b1",
-                "1bfbfb9c-e587-4f5b-9638-534dd58b36f1",
-                "a7e1ecda-ddd2-45a1-bcb9-4409ad362ba9",
-                "738f1edb-7ce7-447e-ab7d-b250713ab6fe"
+                "1bfbfb9c-e587-4f5b-9638-534dd58b36f1"
             ],
             "origname": "",
             "uncompress": false

@@ -1,7 +1,6 @@
 #define printf
 /// printf(string, ...args)
 
-
 var _string = argument[0];
 
 
@@ -15,7 +14,6 @@ show_debug_message(_string);
 
 #define stringf
 /// stringf(string, ...args)
-
 
 var _string = argument[0];
 
@@ -31,7 +29,6 @@ return _string;
 #define string_reverse
 /// string_reverse(string)
 
-
 var _string = argument[0];
 
 
@@ -45,7 +42,6 @@ return _result;
 
 #define array_reverse
 /// array_reverse(array)
-
 
 var _array = argument[0];
 
@@ -63,7 +59,6 @@ for(var i = 0;i < _len;i ++) {
 #define ds_list_reverse
 /// ds_list_reverse(id)
 
-
 var _id = argument[0];
 
 
@@ -79,7 +74,6 @@ repeat(_len) {
 
 #define string_split
 /// string_split(string, separator, [limit])
-
 
 var _string    = argument[0],
     _separator = argument[1],
@@ -163,7 +157,6 @@ return string_copy(_string, _start, _end - _start + 1);
 #define array_join
 /// array_join(array, [separator=','])
 
-
 var _array     = argument[0],
     _sepatator = (argument_count > 1) ? argument[1] : ",";
 
@@ -182,7 +175,6 @@ return _result;
 
 #define ds_list_join
 /// ds_list_join(id, [separator=','])
-
 
 var _id        = argument[0],
     _sepatator = (argument_count > 1) ? argument[1] : ",";
@@ -240,111 +232,8 @@ var _len = point_distance(_x1, _y1, _x2, _y2),
 
 draw_sprite_ext(_sprite, 0, _x1, _y1, _len, 1, _dir, _color, _alpha);
 
-
-#define draw_text_outline
-/// draw_text_outline(x, y, text, bgcolor, olcolor)
-
-
-var _x       = argument[0],
-    _y       = argument[1],
-    _text    = argument[2],
-    _bgcolor = argument[3],
-    _olcolor = argument[4];
-
-
-var _ocol = draw_get_color();
-
-draw_set_color(_bgcolor);
-
-for(var i = 0;i < 8;i ++) {
-    draw_text(_x + dcos(i * 45), _y - dsin(i * 45), _text);
-}
-
-draw_set_color(_olcolor);
-draw_text(_x, _y, _text);
-
-draw_set_color(_ocol);
-
-#define draw_text_styled
-/// draw_text_styled(x, y, text)
-
-
-var _x    = argument[0],
-    _y    = argument[1],
-    _text = argument[2];
-
-
-_text = _text + "$";
-
-var _len   = string_length(_text),
-    _pos   = 1,
-    _dx    = 0,
-    _dy    = 0,
-    _chunk = "";
-
-while(_pos <= _len) {
-    var _char = string_char_at(_text, _pos++);
-    
-    if (_char == "$") {
-        if (_chunk != "") {
-            var _lines = string_split(_chunk, "\n");
-
-            for(var i = 0, j = array_length_1d(_lines);i < j;i ++) {
-                var _line = _lines[i];
-                
-                draw_text(_x + _dx, _y + _dy, _line);
-                
-                if (i < j - 1) {
-                    _dx = 0;
-                    _dy += string_height(_line);
-                } else {
-                    _dx += string_width(_line);
-                }
-            }
-
-            _chunk = "";
-        }
-        
-        if (_pos > _len) break;
-        
-        var _key = "",
-            _val = "";
-
-        while(_pos <= _len) {
-            _char = string_char_at(_text, _pos++);
-            
-            if (_char == ":") break;
-            _key += _char;
-        }
-        
-        while(_pos <= _len) {
-            _char = string_char_at(_text, _pos++);
-            
-            if (_char == ";") break;
-            _val += _char;
-        }
-        
-        switch(_key) {
-            case "font":
-                draw_set_font(real(_val));
-                break;
-
-            case "color":
-                draw_set_color(real(_val));
-                break;
-
-            case "alpha":
-                draw_set_font(real(_val));
-                break;
-        }
-    } else {
-        _chunk += _char;
-    }
-}
-
 #define script_execute_spread
 /// script_execute_spread(ind, args)
-
 
 var _ind  = argument[0],
     _args = argument[1];
